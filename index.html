@@ -269,6 +269,33 @@ body::after {
   padding: 1px 8px;
 }
 
+/* ---------- 美术资产 ---------- */
+.px-img { image-rendering: pixelated; display: inline-block; }
+.title-banner {
+  position: relative; overflow: hidden;
+  border: 2px solid var(--border-strong); border-radius: 6px;
+  margin: 24px 0 10px;
+  animation: neonBreath 4.5s ease-in-out infinite;
+}
+.title-banner img { width: 100%; display: block; image-rendering: pixelated; }
+.title-banner .title-hero {
+  position: absolute; left: 0; right: 0; bottom: 6%;
+  margin: 0; font-size: 1.9rem;
+}
+@keyframes neonBreath {
+  0%, 100% { box-shadow: 0 0 6px rgba(91,150,219,0.12); }
+  50% { box-shadow: 0 0 20px rgba(91,150,219,0.35); }
+}
+.idea-visual { text-align: center; margin-bottom: 8px; }
+.idea-visual img {
+  width: 96px; height: 96px; image-rendering: pixelated;
+  transition: transform 0.12s steps(3);
+}
+.idea-visual .idea-emoji { font-size: 52px; line-height: 96px; }
+.btn:hover .idea-visual img { transform: scale(1.05); }
+.hud-logo { width: 28px; height: 28px; vertical-align: -7px; margin-right: 6px; }
+.attr-icon { width: 20px; height: 20px; vertical-align: -4px; }
+
 /* ---------- debug ---------- */
 #debug-panel {
   border: 2px dashed var(--red);
@@ -1381,6 +1408,40 @@ const ENDINGS = {
   ],
 };
 
+/* ============================================================
+   assets —— 美术资产加载（webp→png 探测，缺图降级 emoji）
+   ============================================================ */
+const ASSET_IDS = ["title", "idea_ai", "idea_brand", "idea_ring",
+  "attr_cash", "attr_team", "attr_network", "attr_health", "attr_traction",
+  "stamp_success", "stamp_mid", "stamp_fail", "fx_crit_success", "fx_crit_fail",
+  "card_frame", "badge_round", "fx_funding", "phase_1", "phase_2", "phase_3"];
+const ASSETS = {};
+const IDEA_EMOJI = { ai: "🙏", brand: "🧃", ring: "💍" };
+
+function probeAsset(id) {
+  return new Promise(resolve => {
+    const exts = ["webp", "png"];
+    let i = 0;
+    const tryNext = () => {
+      if (i >= exts.length) { ASSETS[id] = null; resolve(); return; }
+      const url = `assets/${id}.${exts[i++]}`;
+      const img = new Image();
+      img.onload = () => { ASSETS[id] = url; resolve(); };
+      img.onerror = tryNext;
+      img.src = url;
+    };
+    tryNext();
+  });
+}
+
+// 全部探测完成（或超时 3s）后再进开始页，避免图标闪现
+function loadAssets() {
+  return Promise.race([
+    Promise.all(ASSET_IDS.map(probeAsset)),
+    new Promise(r => setTimeout(r, 3000)),
+  ]);
+}
+
 const ATTRS = ["cash", "traction", "team", "network", "health"];
 const ATTR_META = {
   cash:     { icon: "💰", name: "现金" },
@@ -1596,6 +1657,20 @@ function attrValueText(attr, v) {
   return attr === "cash" ? `¥${v}M` : String(v);
 }
 
+// 属性图标：有素材用像素图，缺图降级 emoji
+function attrIconHtml(attr) {
+  const url = ASSETS["attr_" + attr];
+  return url ? `<img class="attr-icon px-img" src="${url}" alt="${ATTR_META[attr].name}">` : ATTR_META[attr].icon;
+}
+
+// 点子主图：素材 96×96，缺图降级大号 emoji
+function ideaVisualHtml(ideaId) {
+  const url = ASSETS["idea_" + ideaId];
+  return `<div class="idea-visual">${url
+    ? `<img src="${url}" alt="">`
+    : `<span class="idea-emoji">${IDEA_EMOJI[ideaId]}</span>`}</div>`;
+}
+
 function fxTags(applied) {
   const tags = [];
   for (const attr of ATTRS) {
@@ -1616,7 +1691,7 @@ function statBlock(attr, extraClass) {
   const width = Math.min(v, 100);
   return `<div class="stat ${warn} ${over} ${extraClass || ""}" data-attr="${attr}">
     <div class="stat-head">
-      <span class="stat-name">${m.icon} ${m.name}</span>
+      <span class="stat-name">${attrIconHtml(attr)} ${m.name}</span>
       <span class="stat-value">${attrValueText(attr, v)}</span>
     </div>
     <div class="stat-bar"><div class="stat-fill" style="width:${width}%"></div></div>
@@ -1625,7 +1700,9 @@ function statBlock(attr, extraClass) {
 
 function renderHUD(applied) {
   $hud.style.display = "block";
-  $timeLabel.innerHTML = `${esc(timeLabel(state.node))}<span class="stage-badge">${esc(stageName())}</span>`;
+  const logoUrl = ASSETS["idea_" + state.idea.id];
+  const logoHtml = logoUrl ? `<img class="hud-logo px-img" src="${logoUrl}" alt="">` : "";
+  $timeLabel.innerHTML = `${logoHtml}${esc(timeLabel(state.node))}<span class="stage-badge">${esc(stageName())}</span>`;
   $progressLabel.textContent = `第 ${state.node}/${TOTAL_NODES} 个节点`;
   $stats.innerHTML = ATTRS.map(a => statBlock(a)).join("");
   const flow = state.lastFlow;
@@ -1660,11 +1737,15 @@ function debugPanel(info) {
 function showStart() {
   state = null;
   $hud.style.display = "none";
+  const heroHtml = ASSETS.title
+    ? `<div class="title-banner"><img src="${ASSETS.title}" alt=""><div class="title-hero">创业模拟器</div></div>`
+    : `<div class="title-hero">创业模拟器</div>`;
   $main.innerHTML = `
-    <div class="title-hero">创业模拟器</div>
+    ${heroHtml}
     <div class="title-hero-sub">十年一觉创业梦 —— 选一个点子，从一穷二白开始。</div>
     ${IDEAS.map(idea => `
       <button class="btn" data-idea="${idea.id}">
+        ${ideaVisualHtml(idea.id)}
         <div class="btn-title">${esc(idea.name)}</div>
         <div class="btn-sub">${esc(idea.desc)}</div>
         <div class="idea-stats">${ATTRS.map(a =>
@@ -1876,7 +1957,7 @@ function showFinalEnding() {
 }
 
 /* ---------- 启动 ---------- */
-showStart();
+loadAssets().then(showStart);
 </script>
 </body>
 </html>
