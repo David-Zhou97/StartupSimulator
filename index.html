@@ -460,36 +460,36 @@ const IDEAS = [
     id: "ai",
     name: "AI 面试教练「Offer 菩萨」",
     desc: "AI 大模型正是风口，你做了一款帮打工人突击八股、模拟面试的 App，口号是「面试是玄学，不如拜菩萨」。获客快、壁垒薄，同赛道 47 家竞品，大厂随时可能顺手把你抄了。",
-    stats: { cash: 6, traction: 8, team: 40, network: 55, health: 70 },
+    stats: { cash: 6, traction: 5, team: 20, network: 30, health: 90 },
     flavor: "「风口上，猪都能飞。可风停的时候，摔死的也都是猪。你在出租屋里写下第一行代码，给公司取名『Offer 菩萨』——毕竟这届年轻人，面试前是真的会拜。」",
   },
   {
     id: "brand",
     name: "新消费品牌「熬夜水」",
     desc: "一款主打「边熬夜边养生」的功能性饮料，精准收割 996 打工人的朋克养生焦虑。现金流看得见摸得着，但流量越来越贵，经销商个个人精。",
-    stats: { cash: 7, traction: 12, team: 45, network: 45, health: 65 },
+    stats: { cash: 7, traction: 8, team: 25, network: 22, health: 85 },
     flavor: "「你自己就是熬夜水最忠实的用户——毕竟配方就是你连续加班三个月时调出来的。第一批一万瓶已经卖掉一半，剩下的一半在仓库里等着命运。」",
   },
   {
     id: "ring",
     name: "穆斯林智能戒指「新月环」",
     desc: "你发现了一个被巨头忽略的市场：全球近 20 亿穆斯林用户。你要做一枚智能戒指——礼拜时间提醒、朝向指引、赞念计数、健康监测。硬件出海，深圳制造，市场是真的，坑也是真的。",
-    stats: { cash: 5, traction: 5, team: 55, network: 35, health: 75 },
+    stats: { cash: 5, traction: 3, team: 30, network: 18, health: 92 },
     flavor: "「你把第一版工程样机戴在手上，向深圳的工程师们认真解释什么是礼拜时间、为什么朝向精度差一度都不行。做全球生意，先从尊重每一位用户开始。」",
   },
 ];
 
 // 融资轮次：融资分 = 数据×2 + 团队 + 人脉，达标自动关轮到账
 const ROUNDS = [
-  { name: "天使/种子轮", target: 125, amount: 10,
+  { name: "天使/种子轮", target: 100, amount: 12,
     text: "一位天使投资人在咖啡厅听完你的故事，掏出手机当场转了定金：「别谢我，我投的是十年后的你。」" },
-  { name: "A 轮", target: 165, amount: 25,
+  { name: "A 轮", target: 150, amount: 25,
     text: "三个月、41 场会、9 轮尽调之后，TS 终于签了。领投合伙人说：「数据一般，但你这个人我们投了。」" },
-  { name: "B 轮", target: 210, amount: 60,
+  { name: "B 轮", target: 200, amount: 60,
     text: "这一轮没那么多废话——数据摆在那里，条款干净利落。签完字你在电梯里看了眼手机：到账短信比祝贺微信先来。" },
-  { name: "C 轮", target: 255, amount: 120,
+  { name: "C 轮", target: 250, amount: 120,
     text: "领投方是个从没主动见过你的大基金。合伙人握着你的手说「我们观察你们很久了」，你笑了笑，没提他去年拒绝过你的邮件。" },
-  { name: "D 轮", target: 300, amount: 200,
+  { name: "D 轮", target: 295, amount: 200,
     text: "估值后面的零多到你数了两遍。签约晚宴上没有人聊产品，聊的全是退出路径。你有点怀念在出租屋里改产品的日子。" },
   { name: "E 轮", target: 345, amount: 400,
     text: "主权基金、产业资本、老股东全在抢份额。财务顾问说这是他今年最顺的一单。你知道，从这一刻起，上市不再是选择题，是时间表。" },
@@ -1444,6 +1444,22 @@ const WILDCARDS = [
       { label: "走海运，和经销商谈补偿", text: "你用赠品和账期安抚了渠道，但货架空了三周，被一个土耳其品牌趁虚而入。", fx: { traction: -5 } },
     ],
   },
+  {
+    id: "W23", phase: null, ideaOnly: null, title: "办公室来了只流浪猫",
+    scene: "一只三花猫溜进办公室，蹲在服务器机箱上取暖，赶了三次都自己回来。团队已经开始偷偷投喂。",
+    options: [
+      { label: "收编为「首席鼓励师」", text: "猫在工位间巡逻的日子，加班的怨气都少了一半。你在周报里新增了一栏：猫粮支出。", fx: { health: 6, team: 4 } },
+      { label: "联系救助站送走", text: "救助站的志愿者加了你微信，顺手成了你产品的种子用户。办公室安静了，也冷清了。", fx: { network: 2 } },
+    ],
+  },
+  {
+    id: "W24", phase: null, ideaOnly: null, title: "老友拉你进山徒步",
+    scene: "大学室友突然发消息：「周末进山，无信号，两天一夜，就缺你。」你看了看日程表，全是会。",
+    options: [
+      { label: "推掉所有会，进山", text: "两天没看手机，天没塌。下山那晚你睡了八个小时，第二天开会思路清晰得吓人。", fx: { health: 8, network: 2 } },
+      { label: "「下次一定」", text: "你发了个红包表示心意。室友回：「你这句下次一定，说了四年了。」", fx: { health: -3 } },
+    ],
+  },
 ];
 
 // 结局
@@ -1474,7 +1490,7 @@ const ENDINGS = {
   final: [
     {
       id: "sweeper",
-      cond: (s, ctx) => s.health >= 90 && ctx.crits >= 3 && s.traction >= 40 && s.cash >= 30,
+      cond: (s, ctx) => s.health >= 85 && ctx.crits >= 3 && s.traction >= 40 && s.cash >= 30,
       title: "扫地僧",
       badge: "🏆 隐藏结局",
       text: "十年过去，你的公司不大不小，但你成了圈子里的一个传说：融资从不焦虑、裁员从不撕破脸、每天六点下班去游泳。\n有年轻创业者问你秘诀，你想了想说：「运气好，身体好，睡得好。」他们以为你在敷衍。\n只有你知道，这十年每一个命运的骰子落下时，你都接住了。",
@@ -1679,6 +1695,7 @@ function checkFunding() {
   while (state.stage < ROUNDS.length && fundScore() >= ROUNDS[state.stage].target) {
     const round = ROUNDS[state.stage];
     state.stats.cash += round.amount;
+    state.stats.health = clamp(state.stats.health + 6, 0, 100);
     state.stage++;
     state.funding.push({ time: timeLabel(Math.max(state.node, 1)), name: round.name, amount: round.amount });
     state.log.push({ node: state.node, time: timeLabel(Math.max(state.node, 1)), title: `${round.name}到账 ¥${round.amount}M`, tier: "fund" });
@@ -1729,6 +1746,10 @@ function resolveAction(action) {
     tier = "fail"; outcome = action.fail;
   }
   const applied = applyFx(outcome.fx, mult);
+  if (tier === "crit_success") {
+    const heal = applyFx({ health: 4 });
+    if (heal.health) applied.health = (applied.health || 0) + heal.health;
+  }
   state.taken.add(action.id);
   state.log.push({ node: state.node, time: timeLabel(state.node), title: action.title, tier });
   return { roll, mod, total, tier, prefix, text: outcome.text, applied };
@@ -1847,7 +1868,7 @@ function renderHUD(applied) {
   $stats.innerHTML = ATTRS.map(a => statBlock(a)).join("");
   const flow = state.lastFlow;
   const flowHtml = flow
-    ? `<span>本期现金流 <span class="${flow.net >= 0 ? "pos" : "neg"}">${flow.net >= 0 ? "+" : ""}${flow.net}M</span>（烧钱 ${flow.burn}M / 收入 ${flow.rev}M）</span>`
+    ? `<span>本期现金流 <span class="${flow.net >= 0 ? "pos" : "neg"}">${flow.net >= 0 ? "+" : ""}${flow.net}M</span>（烧钱 ${flow.burn}M / 收入 ${flow.rev}M）｜ 体力 <span class="neg">-${flow.drain}</span></span>`
     : "<span></span>";
   const fundHtml = state.stage < ROUNDS.length
     ? `<span class="fund-progress">下一轮 ${esc(ROUNDS[state.stage].name)} ¥${ROUNDS[state.stage].amount}M ｜ 融资分 ${fundScore()}/${ROUNDS[state.stage].target}</span>`
@@ -1910,7 +1931,7 @@ function showFlavor(idea) {
     <div class="card">
       <h2>${esc(idea.name)}</h2>
       <p class="scene">${esc(idea.flavor)}</p>
-      <p class="dim" style="margin-top:10px">融资规则：数据×2 + 团队 + 人脉 达到目标分即自动进入下一轮，资金到账。每个节点都要烧钱——轮次越靠后，烧得越狠。你的启动资金只够撑几个月：先活到天使轮，再谈梦想。</p>
+      <p class="dim" style="margin-top:10px">融资规则：数据×2 + 团队 + 人脉 达到目标分即自动进入下一轮，资金到账。每个节点都要烧钱——轮次越靠后，烧得越狠。你的启动资金只够撑几个月，创业还会持续消耗你的健康——融资到账、时来运转和生活里的小确幸能回一点血。先活到天使轮，再谈梦想。</p>
     </div>
     <button class="btn btn-primary" id="go">开始创业</button>
   `;
@@ -1921,12 +1942,15 @@ function showFlavor(idea) {
 function nextNode() {
   state.node++;
   if (state.node > TOTAL_NODES) { showFinalEnding(); return; }
-  // 结算本期现金流
+  // 结算本期现金流 + 创始人体力消耗（月 -1 / 季 -2 / 年 -3）
   const flow = cashflow();
+  flow.drain = phaseOfNode(state.node) === 1 ? 1 : phaseOfNode(state.node) === 2 ? 2 : 3;
   state.lastFlow = flow;
-  const before = state.stats.cash;
-  state.stats.cash = Math.max(0, before + flow.net);
-  renderHUD({ cash: state.stats.cash - before });
+  const beforeCash = state.stats.cash;
+  const beforeHealth = state.stats.health;
+  state.stats.cash = Math.max(0, beforeCash + flow.net);
+  state.stats.health = clamp(beforeHealth - flow.drain, 0, 100);
+  renderHUD({ cash: state.stats.cash - beforeCash, health: state.stats.health - beforeHealth });
   const zero = checkZero();
   if (zero) { showZeroEnding(zero); return; }
 
@@ -2034,6 +2058,7 @@ function showFundingEvent(rounds, done) {
       <h2>${esc(round.name)}关闭</h2>
       ${heroHtml}
       <div class="funding-amount" style="text-align:center">+¥${round.amount}M</div>
+      <div class="fx-list" style="justify-content:center"><span class="fx-tag pos">❤️ 健康 +6</span><span class="fx-tag" style="color:var(--text-dim)">到账那晚，你终于睡了个整觉</span></div>
       ${stageBadgeHtml("lg")}
       <p class="scene" style="margin-top:10px">${esc(round.text)}</p>
       <div style="margin-top:14px"><button class="btn btn-primary" id="fund-next">继续</button></div>
