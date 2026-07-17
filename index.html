@@ -420,22 +420,9 @@ body::after {
 /* ---------- 桌面端（≥1024px）：HUD 侧栏 + 三列卡片 + 键盘操作 ---------- */
 .key-hint { display: none; color: var(--text-dim); margin-right: 6px; }
 @media (min-width: 1024px) {
-  #app { max-width: 1160px; padding: 24px; }
-  /* 对局中：左侧常驻仪表盘，右侧主区域 */
-  #app.playing { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 26px; align-items: start; }
-  #app.playing #hud {
-    position: sticky; top: 20px;
-    background: var(--bg-card);
-    border: 3px solid var(--border);
-    box-shadow: 4px 4px 0 var(--shadow);
-    padding: 16px;
-    margin-bottom: 0;
-  }
-  #app.playing #hud-time { flex-direction: column; align-items: flex-start; gap: 2px; }
-  #app.playing #stats { grid-template-columns: 1fr; gap: 12px; }
-  #app.playing #hud-info { flex-direction: column; gap: 4px; margin-top: 12px; }
-  /* 开始页：居中宽栏，三个点子并排 */
-  #app:not(.playing) #main { max-width: 1000px; margin: 0 auto; }
+  #app { max-width: 1080px; padding: 24px; }
+  /* 数值区仍在顶部：现金一整行，其余四维并排一行 */
+  #app.playing #stats { grid-template-columns: repeat(4, 1fr); gap: 8px 20px; }
   .idea-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
   .idea-list .btn { margin-bottom: 0; display: flex; flex-direction: column; }
   .idea-list .btn .btn-sub { flex: 1; }
