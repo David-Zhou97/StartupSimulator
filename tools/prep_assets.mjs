@@ -24,12 +24,23 @@ for (const id of ICON_IDS) {
     const file = join(ROOT, "assets", `${id}.${ext}`);
     if (!existsSync(file)) continue;
     const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    // 洪泛填充：只清除与图像边缘连通的近白像素，保护画面内部高光白
+    const w = info.width, h = info.height;
     let cleared = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      if (data[i] >= threshold && data[i + 1] >= threshold && data[i + 2] >= threshold) {
-        data[i + 3] = 0;
-        cleared++;
-      }
+    const isWhite = i => data[i] >= threshold && data[i + 1] >= threshold && data[i + 2] >= threshold && data[i + 3] > 0;
+    const queue = [];
+    const push = (x, y) => {
+      const i = (y * w + x) * 4;
+      if (isWhite(i)) { data[i + 3] = 0; cleared++; queue.push(x, y); }
+    };
+    for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
+    for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+    while (queue.length) {
+      const y = queue.pop(), x = queue.pop();
+      if (x > 0) push(x - 1, y);
+      if (x < w - 1) push(x + 1, y);
+      if (y > 0) push(x, y - 1);
+      if (y < h - 1) push(x, y + 1);
     }
     const out = sharp(data, { raw: { width: info.width, height: info.height, channels: 4 } });
     await (ext === "webp" ? out.webp({ lossless: true }) : out.png()).toFile(file + ".tmp");
