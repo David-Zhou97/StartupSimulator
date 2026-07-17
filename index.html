@@ -1490,7 +1490,7 @@ const ENDINGS = {
   final: [
     {
       id: "sweeper",
-      cond: (s, ctx) => s.health >= 85 && ctx.crits >= 3 && s.traction >= 40 && s.cash >= 30,
+      cond: (s, ctx) => s.health >= 70 && ctx.crits >= 3 && s.traction >= 40 && s.cash >= 30,
       title: "扫地僧",
       badge: "🏆 隐藏结局",
       text: "十年过去，你的公司不大不小，但你成了圈子里的一个传说：融资从不焦虑、裁员从不撕破脸、每天六点下班去游泳。\n有年轻创业者问你秘诀，你想了想说：「运气好，身体好，睡得好。」他们以为你在敷衍。\n只有你知道，这十年每一个命运的骰子落下时，你都接住了。",
@@ -1522,7 +1522,7 @@ const ENDINGS = {
     },
     {
       id: "small_beautiful",
-      cond: (s) => s.traction >= 20 && s.health >= 50 && s.cash >= 8,
+      cond: (s) => s.traction >= 20 && s.health >= 35 && s.cash >= 8,
       title: "小而美 ——「一间自己的公司」",
       badge: "",
       text: "十几个人，几百万利润，一个稳定的客户群。你的公司成不了独角兽，但每年团建可以去海边。\n你不再看融资新闻，不再对标竞品，员工的孩子你都叫得出名字。\n偶尔有前同事问你「就这样了吗」，你想起十年前那个焦虑到失眠的自己，回了三个字：「挺好的。」",
@@ -1944,7 +1944,7 @@ function nextNode() {
   if (state.node > TOTAL_NODES) { showFinalEnding(); return; }
   // 结算本期现金流 + 创始人体力消耗（月 -1 / 季 -2 / 年 -3）
   const flow = cashflow();
-  flow.drain = phaseOfNode(state.node) === 1 ? 1 : phaseOfNode(state.node) === 2 ? 2 : 3;
+  flow.drain = phaseOfNode(state.node) === 1 ? 1 : phaseOfNode(state.node) === 2 ? 3 : 8;
   state.lastFlow = flow;
   const beforeCash = state.stats.cash;
   const beforeHealth = state.stats.health;
@@ -1990,7 +1990,7 @@ function nextNode() {
 function stampHtml(tier) {
   const kind = (tier === "crit_success" || tier === "success") ? "success"
     : tier === "mid" ? "mid" : "fail";
-  const char = kind === "success" ? "成" : kind === "mid" ? "平" : "败";
+  const char = kind === "success" ? "成" : kind === "mid" ? "普" : "败";
   const url = ASSETS["stamp_" + kind];
   return `<div class="stamp ${kind}${url ? "" : " no-img"}">${url ? `<img src="${url}" alt="">` : ""}<span class="stamp-char">${char}</span></div>`;
 }
