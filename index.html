@@ -295,6 +295,30 @@ body::after {
 .btn:hover .idea-visual img { transform: scale(1.05); }
 .hud-logo { width: 28px; height: 28px; vertical-align: -7px; margin-right: 6px; }
 .attr-icon { width: 20px; height: 20px; vertical-align: -4px; }
+/* 结算印章：结果面板角落盖章，成/平/败 叠字 */
+.result-card { position: relative; }
+.stamp {
+  position: absolute; top: 8px; right: 10px;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  transform: rotate(-8deg);
+  animation: stampIn 0.2s steps(4);
+  pointer-events: none;
+}
+.stamp img { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.stamp .stamp-char { position: relative; font-weight: 800; font-size: 19px; line-height: 1; }
+.stamp.success .stamp-char { color: #3d9c50; }
+.stamp.mid .stamp-char { color: #8a8a8a; }
+.stamp.fail .stamp-char { color: #d14a6b; }
+.stamp.no-img { border: 3px solid; border-radius: 50%; }
+.stamp.no-img.success { border-color: #3d9c50; background: rgba(61,156,80,0.08); }
+.stamp.no-img.mid { border-color: #8a8a8a; background: rgba(138,138,138,0.08); }
+.stamp.no-img.fail { border-color: #d14a6b; background: rgba(209,74,107,0.08); }
+@keyframes stampIn {
+  0% { transform: scale(1.6) rotate(-14deg); opacity: 0; }
+  60% { transform: scale(0.95) rotate(-4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); }
+}
 
 /* ---------- debug ---------- */
 #debug-panel {
@@ -1804,6 +1828,15 @@ function nextNode() {
   });
 }
 
+// 结算印章：成 / 平 / 败（有素材用章图叠字，缺图降级彩色圆环）
+function stampHtml(tier) {
+  const kind = (tier === "crit_success" || tier === "success") ? "success"
+    : tier === "mid" ? "mid" : "fail";
+  const char = kind === "success" ? "成" : kind === "mid" ? "平" : "败";
+  const url = ASSETS["stamp_" + kind];
+  return `<div class="stamp ${kind}${url ? "" : " no-img"}">${url ? `<img src="${url}" alt="">` : ""}<span class="stamp-char">${char}</span></div>`;
+}
+
 function onAction(action) {
   const r = resolveAction(action);
   renderHUD(r.applied);
@@ -1811,6 +1844,7 @@ function onAction(action) {
   $main.innerHTML = `
     ${debugPanel({ ...r, S: action.S, F: action.F })}
     <div class="card result-card ${critClass}">
+      ${stampHtml(r.tier)}
       <h2>${esc(action.title)}</h2>
       ${r.prefix ? `<span class="crit-prefix">${esc(r.prefix)}</span>` : ""}
       <p class="scene">${esc(r.text)}</p>
