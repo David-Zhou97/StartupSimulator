@@ -6,7 +6,7 @@
 <title>创业模拟器</title>
 <style>
 /* ============================================================
-   样式
+   样式（像素/复古风）
    ============================================================ */
 :root {
   --bg: #0d0d1a;
@@ -22,6 +22,7 @@
   --red: #ff5252;
   --gold: #ffd23e;
   --cash: #ffd23e;
+  --traction: #58e858;
   --team: #4dd8ff;
   --network: #c980ff;
   --health: #ff6b9d;
@@ -49,18 +50,27 @@ body::after {
   position: sticky; top: 0; z-index: 10;
   background: var(--bg);
   border-bottom: 3px solid var(--border);
-  padding: 10px 4px 12px;
+  padding: 10px 4px 10px;
   margin-bottom: 18px;
 }
 #hud-time {
   display: flex; justify-content: space-between; align-items: baseline;
-  margin-bottom: 10px;
+  margin-bottom: 8px; flex-wrap: wrap; gap: 4px;
 }
 #hud-time .time-label { font-size: 1rem; font-weight: 700; color: var(--accent); text-shadow: 2px 2px 0 var(--shadow); }
 #hud-time .time-label::before { content: "▶ "; }
 #hud-time .progress-label { font-size: 0.78rem; color: var(--text-dim); }
+.stage-badge {
+  display: inline-block;
+  font-size: 0.72rem; font-weight: 700;
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  padding: 0 8px; margin-left: 8px;
+  vertical-align: 2px;
+}
 #stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
 .stat { position: relative; }
+.stat[data-attr="cash"] { grid-column: 1 / -1; }
 .stat-head { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 2px; }
 .stat-name { color: var(--text-dim); }
 .stat-value { font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -70,18 +80,27 @@ body::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: repeating-linear-gradient(90deg, transparent 0 8px, var(--bg) 8px 10px);
 }
-.stat[data-attr="cash"]    .stat-fill { background: var(--cash); }
-.stat[data-attr="team"]    .stat-fill { background: var(--team); }
-.stat[data-attr="network"] .stat-fill { background: var(--network); }
-.stat[data-attr="health"]  .stat-fill { background: var(--health); }
+.stat[data-attr="cash"]     .stat-fill { background: var(--cash); }
+.stat[data-attr="traction"] .stat-fill { background: var(--traction); }
+.stat[data-attr="team"]     .stat-fill { background: var(--team); }
+.stat[data-attr="network"]  .stat-fill { background: var(--network); }
+.stat[data-attr="health"]   .stat-fill { background: var(--health); }
+.stat.overflow .stat-bar { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,210,62,0.5); }
 .stat.warning .stat-bar { animation: blinkRed 0.8s steps(2) infinite; }
 .stat.warning .stat-value { color: var(--red); }
 @keyframes blinkRed {
   0%, 100% { border-color: var(--red); box-shadow: 0 0 0 2px var(--red); }
   50% { border-color: var(--border); box-shadow: none; }
 }
+#hud-info {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 12px;
+  font-size: 0.74rem; color: var(--text-dim); margin-top: 8px;
+}
+#hud-info .pos { color: var(--green); }
+#hud-info .neg { color: var(--red); }
+#hud-info .fund-progress { color: var(--gold); }
 .float-fx {
-  position: absolute; right: 0; top: -4px;
+  position: absolute; right: 2px; bottom: -2px;
   font-size: 0.85rem; font-weight: 700;
   animation: floatUp 1.6s steps(10) forwards;
   pointer-events: none; white-space: nowrap;
@@ -161,6 +180,14 @@ body::after {
 .btn .btn-title::before { content: "▷ "; color: var(--text-dim); }
 .btn:hover .btn-title::before { content: "▶ "; color: var(--accent); }
 .btn .btn-sub { color: var(--text-dim); font-size: 0.84rem; margin-top: 3px; }
+.tag-chip {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 700;
+  color: var(--text-dim);
+  border: 2px solid var(--border);
+  padding: 0 6px; margin-right: 6px;
+  vertical-align: 2px;
+}
 .btn-primary {
   background: var(--gold); color: #1a1400; text-align: center; font-weight: 700;
   border-color: var(--ink);
@@ -168,7 +195,7 @@ body::after {
 }
 .btn-primary:hover { background: var(--accent); border-color: var(--ink); color: #001a22; }
 
-/* ---------- 百搭卡弹层 ---------- */
+/* ---------- 弹层（百搭卡 / 融资） ---------- */
 #overlay {
   position: fixed; inset: 0; z-index: 20;
   background: rgba(0,0,0,0.7);
@@ -192,6 +219,14 @@ body::after {
   padding: 2px 10px;
   margin-bottom: 10px;
 }
+.funding-card { border-color: var(--green); box-shadow: 6px 6px 0 var(--shadow), 0 0 24px rgba(88,232,88,0.35); }
+.funding-card h2::before { color: var(--green); }
+.funding-card .wildcard-tag { background: var(--green); color: #00220a; }
+.funding-amount {
+  font-size: 1.5rem; font-weight: 800; color: var(--green);
+  text-shadow: 2px 2px 0 var(--shadow);
+  margin: 8px 0;
+}
 
 /* ---------- 结局页 ---------- */
 .ending-title {
@@ -213,6 +248,7 @@ body::after {
 .log-time { color: var(--text-dim); margin-right: 8px; }
 .log-item.crit_success .log-tier { color: var(--gold); font-weight: 700; }
 .log-item.crit_fail .log-tier { color: var(--red); font-weight: 700; }
+.log-item.fund .log-tier { color: var(--green); font-weight: 700; }
 .footnote { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin: 24px 0 10px; }
 
 /* ---------- 开局 ---------- */
@@ -256,6 +292,7 @@ body::after {
       <span class="progress-label" id="progress-label"></span>
     </div>
     <div id="stats"></div>
+    <div id="hud-info"></div>
   </div>
   <div id="main"></div>
 </div>
@@ -263,442 +300,754 @@ body::after {
 <script>
 "use strict";
 /* ============================================================
-   content —— 内容数据（逐字转录自设计文档）
+   content —— 内容数据
    ============================================================ */
 
 // 创业点子
 const IDEAS = [
   {
     id: "ai",
-    name: "AI面试教练「面试猫」",
-    desc: "AI 大模型正是风口，你做了一款帮打工人模拟面试、优化简历的 App。投资人抢着约你喝咖啡，但同赛道已经有 47 家竞品，且大厂随时可能顺手把你抄了。",
-    stats: { cash: 55, team: 50, network: 60, health: 65 },
-    flavor: "「风口上，猪都能飞。可风停的时候，摔死的也都是猪。你给公司取名『面试猫』，在出租屋里写下了第一行代码。」",
+    name: "AI 面试教练「Offer 菩萨」",
+    desc: "AI 大模型正是风口，你做了一款帮打工人突击八股、模拟面试的 App，口号是「面试是玄学，不如拜菩萨」。获客快、壁垒薄，同赛道 47 家竞品，大厂随时可能顺手把你抄了。",
+    stats: { cash: 8, traction: 8, team: 40, network: 55, health: 70 },
+    flavor: "「风口上，猪都能飞。可风停的时候，摔死的也都是猪。你在出租屋里写下第一行代码，给公司取名『Offer 菩萨』——毕竟这届年轻人，面试前是真的会拜。」",
   },
   {
     id: "brand",
     name: "新消费品牌「熬夜水」",
     desc: "一款主打「边熬夜边养生」的功能性饮料，精准收割 996 打工人的朋克养生焦虑。现金流看得见摸得着，但流量越来越贵，经销商个个人精。",
-    stats: { cash: 60, team: 55, network: 50, health: 60 },
-    flavor: "「你自己就是熬夜水最忠实的用户——毕竟配方就是你连续加班三个月时调出来的。第一批一万瓶，已经在仓库里等着了。」",
+    stats: { cash: 10, traction: 12, team: 45, network: 45, health: 65 },
+    flavor: "「你自己就是熬夜水最忠实的用户——毕竟配方就是你连续加班三个月时调出来的。第一批一万瓶已经卖掉一半，剩下的一半在仓库里等着命运。」",
   },
   {
-    id: "hardtech",
-    name: "硬科技「芯片检测仪」",
-    desc: "你和导师把实验室成果产业化，做国产半导体检测设备。技术壁垒高、政策支持多，但研发周期以年计，投资人听完路演总说「很好，我们再看看」。",
-    stats: { cash: 45, team: 65, network: 40, health: 70 },
-    flavor: "「实验室的灯你熄了最后一次。设备原型机装进面包车时，导师拍拍你的肩：『产业界的水，比学术界深多了。』」",
+    id: "ring",
+    name: "穆斯林智能戒指「新月环」",
+    desc: "你发现了一个被巨头忽略的市场：全球近 20 亿穆斯林用户。你要做一枚智能戒指——礼拜时间提醒、朝向指引、赞念计数、健康监测。硬件出海，深圳制造，市场是真的，坑也是真的。",
+    stats: { cash: 7, traction: 5, team: 55, network: 35, health: 75 },
+    flavor: "「你把第一版工程样机戴在手上，向深圳的工程师们认真解释什么是礼拜时间、为什么朝向精度差一度都不行。做全球生意，先从尊重每一位用户开始。」",
   },
 ];
 
-// 行动选项（阶段一 A01–A18，阶段二 B01–B14，阶段三 C01–C12）
+// 融资轮次：融资分 = 数据×2 + 团队 + 人脉，达标自动关轮到账
+const ROUNDS = [
+  { name: "天使/种子轮", target: 125, amount: 10,
+    text: "一位天使投资人在咖啡厅听完你的故事，掏出手机当场转了定金：「别谢我，我投的是十年后的你。」" },
+  { name: "A 轮", target: 165, amount: 25,
+    text: "三个月、41 场会、9 轮尽调之后，TS 终于签了。领投合伙人说：「数据一般，但你这个人我们投了。」" },
+  { name: "B 轮", target: 210, amount: 60,
+    text: "这一轮没那么多废话——数据摆在那里，条款干净利落。签完字你在电梯里看了眼手机：到账短信比祝贺微信先来。" },
+  { name: "C 轮", target: 255, amount: 120,
+    text: "领投方是个从没主动见过你的大基金。合伙人握着你的手说「我们观察你们很久了」，你笑了笑，没提他去年拒绝过你的邮件。" },
+  { name: "D 轮", target: 300, amount: 200,
+    text: "估值后面的零多到你数了两遍。签约晚宴上没有人聊产品，聊的全是退出路径。你有点怀念在出租屋里改产品的日子。" },
+  { name: "E 轮", target: 345, amount: 400,
+    text: "主权基金、产业资本、老股东全在抢份额。财务顾问说这是他今年最顺的一单。你知道，从这一刻起，上市不再是选择题，是时间表。" },
+];
+
+/*
+ 行动选项字段：
+ id, phase(1|2|3), tag, title, scene, checkAttr, S, F,
+ ideaOnly(null|"ai"|"brand"|"ring"),
+ minStage/maxStage（可选，按已完成轮次数 0=未融资 1=天使后 2=A后…），
+ success/mid/fail: { text, fx }
+ fx: cash 单位为 ¥1M，traction/team/network/health 为 0–100 标度
+*/
 const ACTIONS = [
+  /* ============ 阶段一 · 通用（第 1 年 · 每月） ============ */
   {
-    id: "A01", phase: 1, title: "去见天使投资人",
-    scene: "你把 BP 改到第 14 版，约到了一位在朋友圈晒滑雪照的天使投资人。咖啡厅里，他一边听你讲一边回微信。",
-    checkAttr: "network", S: 17, F: 10, ideaOnly: null,
-    success: { text: "他在你讲到第 8 页时抬起头：「后面不用讲了，我投。」打款那天你盯着到账短信看了十分钟。", fx: { cash: 25, network: 5 } },
-    mid:     { text: "他没投，但介绍了一个「可能感兴趣的朋友」，折腾一个月后对方给了一小笔可转债。你失眠了好几晚。", fx: { cash: 8, health: -5 } },
-    fail:    { text: "「你这个模式，大厂做了怎么办？」你答不上来。后来听说他在别的局上拿你的 BP 当反面教材。", fx: { network: -5, health: -8 } },
-  },
-  {
-    id: "A02", phase: 1, title: "打磨产品上线 MVP",
-    scene: "功能砍到不能再砍，你决定这个月把最小可行产品推上线，接受市场检验。",
+    id: "P101", phase: 1, tag: "产品", title: "把第一版产品推向市场",
+    scene: "功能砍到不能再砍，你决定这个月把最小可行版本推向市场，接受真实用户的检验。",
     checkAttr: "team", S: 11, F: 6, ideaOnly: null,
-    success: { text: "上线当天冲上少数派和即刻热榜，第一批种子用户在群里疯狂@你提需求。团队士气爆棚。", fx: { network: 8, team: 6, cash: 5 } },
-    mid:     { text: "如期上线，数据不温不火。用户最喜欢的功能是你顺手做的那个，主功能没人用。", fx: { team: 3, health: -4 } },
-    fail:    { text: "上线两小时服务器崩了，仅有的用户在应用商店打了一星：「垃圾，卸了。」团队集体沉默。", fx: { team: -8, cash: -5 } },
+    success: { text: "上线当天冲上了小圈子热榜，第一批种子用户在群里疯狂@你提需求。团队士气爆棚。", fx: { traction: 6, team: 4, network: 2 } },
+    mid:     { text: "如期上线，数据不温不火。用户最喜欢的功能是你顺手做的那个，主打功能没人用。", fx: { traction: 2, health: -4 } },
+    fail:    { text: "上线两小时就出了重大事故，仅有的用户留下一星差评：「垃圾，退了。」团队集体沉默。", fx: { team: -6, traction: -2, cash: -1 } },
   },
   {
-    id: "A03", phase: 1, title: "三顾茅庐挖 CTO",
+    id: "P102", phase: 1, tag: "增长", title: "泡在用户群里当客服",
+    scene: "你决定这个月亲自蹲在用户群里，一条条回消息，把每个骂你的用户都聊成朋友。",
+    checkAttr: "health", S: 8, F: 4, ideaOnly: null,
+    success: { text: "两周后你能背出前 50 个用户的职业和痛点，三个产品洞察直接改写了路线图。有用户说：「第一次见老板亲自道歉的。」", fx: { traction: 4, network: 2, health: -3 } },
+    mid:     { text: "消息回到凌晨两点，问题解决了一半，另一半你发现根本不是产品问题，是人生问题。", fx: { traction: 1, health: -4 } },
+    fail:    { text: "你在群里和一个杠精吵了起来，聊天记录被截图传播。你学到了：老板的嘴，是公司最大的公关风险。", fx: { health: -8, team: -2 } },
+  },
+  {
+    id: "P103", phase: 1, tag: "团队", title: "三顾茅庐挖大牛",
     scene: "朋友推荐了一位大厂 P8，技术极强但年薪百万。你约他在公司楼下的兰州拉面聊了三次。",
     checkAttr: "network", S: 14, F: 8, ideaOnly: null,
-    success: { text: "第三碗拉面吃完，他说：「工资砍半，股份补上，下周一入职。」你多要了一份小菜庆祝。", fx: { team: 15, cash: -8 } },
-    mid:     { text: "他没来，但答应做技术顾问，每周远程指导一次。聊胜于无。", fx: { team: 5, cash: -5 } },
-    fail:    { text: "他回去和老婆商量后婉拒了你。更扎心的是，他把你的技术方案里三个致命漏洞列了出来——免费的，也是最后一次。", fx: { network: -6, health: -5 } },
+    success: { text: "第三碗拉面吃完，他说：「工资砍半，股份补上，下周一入职。」你多要了一份小菜庆祝。", fx: { team: 14, cash: -2 } },
+    mid:     { text: "他没来，但答应做技术顾问，每周远程指导一次。聊胜于无。", fx: { team: 5, cash: -1 } },
+    fail:    { text: "他回去和老婆商量后婉拒了你。更扎心的是，他把你技术方案里三个致命漏洞列了出来——免费的，也是最后一次。", fx: { network: -6, health: -5 } },
   },
   {
-    id: "A04", phase: 1, title: "亲自下场地推",
-    scene: "没钱投广告，你带着团队去写字楼、地铁口、高校食堂发传单、扫码送小礼品。",
-    checkAttr: "health", S: 8, F: 4, ideaOnly: null,
-    success: { text: "一周扫出两千个种子用户，还偶遇一位好奇的园区管委会主任，加了微信。", fx: { network: 8, cash: 6, health: -3 } },
-    mid:     { text: "转化率感人，但你摸清了用户真实画像——和你想象的完全不是一群人。", fx: { cash: 3, health: -5 } },
-    fail:    { text: "连续暴晒一周后你重感冒发烧，礼品被大爷大妈薅光，扫码的没几个。保安还没收了你的易拉宝。", fx: { health: -10, cash: -4 } },
-  },
-  {
-    id: "A05", phase: 1, title: "参加创业大赛",
-    scene: "本地创投圈一年一度的路演大赛开始报名，冠军奖金 20 万，评委席坐满了机构投资人。",
+    id: "P104", phase: 1, tag: "人脉", title: "混创投圈饭局",
+    scene: "FA 朋友攒了个局，据说有几位「说了算」的投资人到场。你带上了最贵的那瓶酒。",
     checkAttr: "network", S: 11, F: 6, ideaOnly: null,
-    success: { text: "你拿了亚军——冠军是评委侄子的项目，但三家机构赛后主动约你聊。奖金到账 10 万。", fx: { cash: 15, network: 12 } },
-    mid:     { text: "止步八强。不过你在等候区认识了几个同病相怜的创始人，建了个「难兄难弟」群。", fx: { network: 5, health: -4 } },
+    success: { text: "酒过三巡，一位合伙人拍着你的肩说「小伙子有意思」，当场拉了个微信群写着「重点项目对接」。", fx: { network: 10, health: -4 } },
+    mid:     { text: "名片加了一圈，回头发消息一半不回。饭钱还是你抢着买的单。", fx: { network: 4, health: -5 } },
+    fail:    { text: "你被灌到断片，第二天醒来发现自己在群里发了些不该发的豪言壮语。默默退群。", fx: { health: -8, network: -3 } },
+  },
+  {
+    id: "P105", phase: 1, tag: "资金", title: "接外包私活养团队",
+    scene: "账上的钱撑不了几个月，一个甲方愿意出钱让你们做个定制项目。做，还是不做？",
+    checkAttr: "team", S: 8, F: 4, ideaOnly: null,
+    success: { text: "项目一个月交付，甲方爽快打款还介绍了新单。团队笑称咱们是「白天卖艺，晚上追梦」。", fx: { cash: 5, team: 2 } },
+    mid:     { text: "钱到手了，但主产品停滞一个月，两个工程师私下抱怨「说好的改变世界呢」。", fx: { cash: 3, team: -3, traction: -1 } },
+    fail:    { text: "甲方需求改了八轮，尾款拖着不给，团队边骂边加班。你开始理解什么叫「外包一时爽」。", fx: { cash: -1, team: -6, health: -4 } },
+  },
+  {
+    id: "P106", phase: 1, tag: "增长", title: "小预算增长实验",
+    scene: "你挤出一小笔预算，设计了三组投放实验：不同渠道、不同人群、不同话术，让数据说话。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: null,
+    success: { text: "第三组实验跑出了惊人的转化率，你找到了第一个可复制的获客公式。增长曲线第一次抬头。", fx: { traction: 7, cash: -2 } },
+    mid:     { text: "钱花完了，结论是「渠道 A 略好于渠道 B」。你安慰自己：排除错误答案也是进步。", fx: { traction: 2, cash: -2 } },
+    fail:    { text: "投放账户被判定违规封停，预算打了水漂，申诉邮件石沉大海。你对着后台界面骂了十分钟。", fx: { cash: -3, traction: -1 } },
+  },
+  {
+    id: "P107", phase: 1, tag: "团队", title: "和联创把股权谈清楚",
+    scene: "公司渐渐有起色，当初「先干起来再说」的股权问题不能再拖了。你约联创周末在办公室摊牌。",
+    checkAttr: "team", S: 14, F: 8, ideaOnly: null, maxStage: 2,
+    success: { text: "一下午坦诚相见，四年成熟期、一年悬崖期全部谈妥。签完字你俩去撸了顿串，比创业第一天还开心。", fx: { team: 12, network: 3 } },
+    mid:     { text: "谈是谈完了，但对方那句「我觉得我贡献不止这些」在你脑子里循环播放。", fx: { team: 3, health: -5 } },
+    fail:    { text: "谈崩了。他摔门而去，带走了两个工程师。你连夜改了所有系统的管理员密码。", fx: { team: -14, health: -8 } },
+  },
+  {
+    id: "P108", phase: 1, tag: "人脉", title: "参加创业大赛",
+    scene: "本地创投圈一年一度的路演大赛开始报名，冠军奖金不少，评委席坐满了机构投资人。",
+    checkAttr: "network", S: 11, F: 6, ideaOnly: null,
+    success: { text: "你拿了亚军——冠军是评委侄子的项目，但三家机构赛后主动约你聊。奖金到账。", fx: { cash: 2, network: 8, traction: 3 } },
+    mid:     { text: "止步八强。不过你在等候区认识了几个同病相怜的创始人，建了个「难兄难弟」群。", fx: { network: 4, health: -3 } },
     fail:    { text: "路演时 PPT 放不出来，你临场发挥语无伦次。评委的点评句句扎心，当晚你在车里坐了很久。", fx: { network: -4, health: -6 } },
   },
   {
-    id: "A06", phase: 1, title: "混投资人饭局",
-    scene: "FA 朋友攒了个局，据说有几位「说了算」的投资人到场。你带上了最贵的那瓶酒。",
-    checkAttr: "network", S: 11, F: 6, ideaOnly: null,
-    success: { text: "酒过三巡，一位合伙人拍着你的肩说「小伙子有意思」，当场拉了个微信群写着「重点项目对接」。", fx: { network: 12, health: -4 } },
-    mid:     { text: "名片加了一圈，回头发消息一半不回。饭钱还是你抢着买的单。", fx: { network: 4, health: -5, cash: -3 } },
-    fail:    { text: "你被灌到断片，第二天醒来发现自己在群里发了些不该发的豪言壮语。默默退群。", fx: { health: -10, network: -3 } },
-  },
-  {
-    id: "A07", phase: 1, title: "通宵爆肝赶版本",
-    scene: "竞品下周发布会，你决定带队连肝两周，抢先上线新功能。办公室堆满了红牛和外卖盒。",
-    checkAttr: "health", S: 11, F: 6, ideaOnly: null,
-    success: { text: "版本抢先三天上线，科技媒体用了「小团队跑赢大厂」的标题。团队虽然累瘫，但眼里有光。", fx: { team: 8, network: 6, health: -6 } },
-    mid:     { text: "功能上了，竞品的也上了，用户没看出区别。只有你的黑眼圈证明这两周存在过。", fx: { team: 3, health: -8 } },
-    fail:    { text: "第 11 天凌晨你晕倒在工位上，医生说再这样下去「后果自负」。版本延期，士气受挫。", fx: { health: -15, team: -5 } },
-  },
-  {
-    id: "A08", phase: 1, title: "招聘第一批正式员工",
-    scene: "活多得干不完，你挂出了三个岗位的 JD，工资开得比市场价低两成，全靠「梦想」补齐。",
-    checkAttr: "cash", S: 11, F: 6, ideaOnly: null,
-    success: { text: "来了两个被大厂裁掉的老兵和一个满眼星星的应届生，性价比极高，团队瞬间像个正规军。", fx: { team: 12, cash: -8 } },
-    mid:     { text: "招到了人，能干活，但每天六点准时下班，眼神里写着「别跟我谈梦想」。", fx: { team: 5, cash: -8 } },
-    fail:    { text: "招来的「全栈工程师」入职两周被发现简历全是水分，赔了工资不说，还删库跑路未遂。", fx: { cash: -10, team: -5 } },
-  },
-  {
-    id: "A09", phase: 1, title: "和联合创始人谈股权",
-    scene: "公司渐渐有起色，当初「先干起来再说」的股权问题不能再拖了。你约联创周末在办公室摊牌。",
-    checkAttr: "team", S: 14, F: 8, ideaOnly: null,
-    success: { text: "一下午坦诚相见，四年成熟期、一年悬崖期全部谈妥。签完字你俩去撸了顿串，比创业第一天还开心。", fx: { team: 12, network: 4 } },
-    mid:     { text: "谈是谈完了，但对方那句「我觉得我贡献不止这些」在你脑子里循环播放。", fx: { team: 3, health: -5 } },
-    fail:    { text: "谈崩了。他摔门而去，带走了两个工程师。你连夜改了所有系统的管理员密码。", fx: { team: -15, health: -8 } },
-  },
-  {
-    id: "A10", phase: 1, title: "接外包项目养团队",
-    scene: "账上的钱撑不了几个月，一个甲方愿意出 30 万让你们做个管理系统。做，还是不做？",
-    checkAttr: "team", S: 8, F: 4, ideaOnly: null,
-    success: { text: "项目一个月交付，甲方爽快打款还介绍了新单。团队笑称咱们是「白天卖艺，晚上追梦」。", fx: { cash: 15, team: 3 } },
-    mid:     { text: "钱到手了，但主产品停滞一个月，两个工程师私下抱怨「说好的改变世界呢」。", fx: { cash: 8, team: -4 } },
-    fail:    { text: "甲方需求改了八轮，尾款拖着不给，团队边骂边加班。你开始理解什么叫「外包一时爽」。", fx: { cash: -5, team: -8, health: -5 } },
-  },
-  {
-    id: "A11", phase: 1, title: "做一波媒体 PR",
-    scene: "你花小钱请了个懂行的公关顾问，准备包装一篇「90 后创始人」的深度报道。",
-    checkAttr: "network", S: 11, F: 6, ideaOnly: null,
-    success: { text: "报道被几个大号转载，标题是《他辞掉大厂 offer，想解决一个千万人的痛点》。爸妈第一次转发了你的链接。", fx: { network: 12, team: 4 } },
-    mid:     { text: "文章发了，阅读量四位数，一半是团队自己刷的。顾问说「品牌是长期工程」。", fx: { network: 4, cash: -5 } },
-    fail:    { text: "稿子被竞品截图挂出来逐句嘲讽，评论区变成大型翻车现场。你学会了一个词：黑红不是红。", fx: { network: -6, health: -5 } },
-  },
-  {
-    id: "A12", phase: 1, title: "组织团建",
-    scene: "连轴转了几个月，团队肉眼可见地蔫了。你咬牙订了个周边两日游，还请大家吃了顿好的。",
-    checkAttr: "cash", S: 8, F: 4, ideaOnly: null,
-    success: { text: "篝火晚会上大家说了很多真心话，回来后整个团队像换了个引擎。钱花得值。", fx: { team: 12, health: 5, cash: -6 } },
-    mid:     { text: "吃好喝好，合影发圈，周一回来该摸鱼还是摸鱼。至少没人提离职了。", fx: { team: 5, cash: -6 } },
-    fail:    { text: "团建变成大型尴尬现场，两个同事在真心话环节吵了起来，把积怨全抖了出来。你花钱买了个雷。", fx: { team: -6, cash: -8 } },
-  },
-  {
-    id: "A13", phase: 1, title: "去体检并规律锻炼",
-    scene: "镜子里的你发际线后移、眼袋深重。你办了张健身卡，还预约了入职以来第一次体检。",
+    id: "P109", phase: 1, tag: "个人", title: "去体检并规律锻炼",
+    scene: "镜子里的你发际线后移、眼袋深重。你办了张健身卡，还预约了创业以来第一次体检。",
     checkAttr: "health", S: 8, F: 4, ideaOnly: null,
-    success: { text: "一个月后你体脂降了、睡眠好了，开会思路都清晰了。团队私下说老板最近「人性了很多」。", fx: { health: 15, team: 3 } },
+    success: { text: "一个月后你体脂降了、睡眠好了，开会思路都清晰了。团队私下说老板最近「人性了很多」。", fx: { health: 14, team: 2 } },
     mid:     { text: "健身卡用了四次，体检报告「轻度脂肪肝、甲状腺结节」，医生让你「少熬夜」。你笑了，医生没笑。", fx: { health: 6 } },
-    fail:    { text: "第二次撸铁就拉伤了腰，躺了一周，理疗费比健身卡还贵。你悟了：创业者的命也是命，但先记在账上。", fx: { health: -5, cash: -4 } },
+    fail:    { text: "第二次撸铁就拉伤了腰，躺了一周，理疗费比健身卡还贵。你悟了：创业者的命也是命，但先记在账上。", fx: { health: -5, cash: -1 } },
   },
   {
-    id: "A14", phase: 1, title: "裁掉不合适的员工",
-    scene: "那位入职三个月零产出、还爱在群里阴阳怪气的员工，你决定不再等了。",
-    checkAttr: "team", S: 5, F: 2, ideaOnly: null,
-    success: { text: "N+1 谈得干脆体面，对方走时说「其实我也觉得不合适」。团队氛围肉眼可见地变好。", fx: { team: 8, cash: -4 } },
-    mid:     { text: "人是走了，但劳动仲裁咨询了一圈，赔偿比预想的多。你连夜补齐了全公司的劳动合同。", fx: { team: 3, cash: -6 } },
-    fail:    { text: "对方把聊天记录发上了脉脉，标题带着你公司的名字。接下来一周，来面试的人都会问那件事。", fx: { team: -6, network: -5, cash: -6 } },
+    id: "P110", phase: 1, tag: "团队", title: "招聘第一批正式员工",
+    scene: "活多得干不完，你挂出了三个岗位的 JD，工资开得比市场价低两成，全靠「梦想」补齐。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: null, maxStage: 1,
+    success: { text: "来了两个被大厂裁掉的老兵和一个满眼星星的应届生，性价比极高，团队瞬间像个正规军。", fx: { team: 12, cash: -1 } },
+    mid:     { text: "招到了人，能干活，但每天六点准时下班，眼神里写着「别跟我谈梦想」。", fx: { team: 5, cash: -1 } },
+    fail:    { text: "招来的「全栈工程师」入职两周被发现简历全是水分，赔了工资不说，还删库跑路未遂。", fx: { cash: -2, team: -5 } },
   },
+
+  /* ============ 阶段一 · Offer 菩萨专属 ============ */
   {
-    id: "A15", phase: 1, title: "追风口紧急转型",
-    scene: "新风口一夜爆红，投资人朋友劝你：「现在转还来得及，晚了汤都喝不上。」你盯着自己打磨半年的产品，陷入沉思。",
-    checkAttr: "network", S: 17, F: 10, ideaOnly: null,
-    success: { text: "你带队七天搞出新方向 demo，正好赶上风口最热的窗口拿到一笔快钱。老用户骂你背叛，但账上的钱不会说谎。", fx: { cash: 20, network: 10, team: -5 } },
-    mid:     { text: "转了个半吊子，新旧业务两头烧。团队每天问「我们到底是做什么的」，你也想知道。", fx: { cash: 5, team: -6, health: -5 } },
-    fail:    { text: "等你转过去，风口已经凉了，裸泳的名单里多了你一个。老产品的用户也散了。", fx: { cash: -12, team: -10, health: -6 } },
-  },
-  {
-    id: "A16", phase: 1, title: "【面试猫】蹭大模型发布会热点",
-    scene: "某巨头大模型发布会刷屏，你连夜让产品接入新 API，准备发一篇《面试猫 × 新模型实测》蹭热度。",
+    id: "AI101", phase: 1, tag: "增长", title: "蹭大模型发布会热点",
+    scene: "某巨头大模型发布会刷屏，你连夜让产品接入新 API，准备发一篇《Offer 菩萨 × 新模型实测》蹭热度。",
     checkAttr: "network", S: 11, F: 6, ideaOnly: "ai",
-    success: { text: "文章精准踩点，当天新增用户破万，一位 AI 赛道投资人主动私信你「聊聊？」。", fx: { network: 12, cash: 8 } },
-    mid:     { text: "热点蹭上了，但 API 调用费比新增收入还高。你默默调低了免费额度。", fx: { network: 4, cash: -3 } },
-    fail:    { text: "新 API 不稳定，用户面试模拟到一半 AI 开始胡言乱语，录屏在小红书上被嘲上热门。", fx: { network: -5, team: -5 } },
+    success: { text: "文章精准踩点，当天新增用户破万，一位 AI 赛道投资人主动私信你「聊聊？」。", fx: { traction: 6, network: 6 } },
+    mid:     { text: "热点蹭上了，但 API 调用费比新增收入还高。你默默调低了免费额度。", fx: { traction: 2, cash: -1 } },
+    fail:    { text: "新 API 不稳定，用户模拟面试到一半 AI 开始胡言乱语，录屏在小红书上被嘲上热门。", fx: { network: -5, traction: -3 } },
   },
   {
-    id: "A17", phase: 1, title: "【熬夜水】进便利店渠道",
+    id: "AI102", phase: 1, tag: "增长", title: "校招季高校地推",
+    scene: "秋招开闸，你带着团队进驻大学城，打出「面试不过，菩萨退费」的横幅，在宿舍楼下摆摊。",
+    checkAttr: "health", S: 8, F: 4, ideaOnly: "ai",
+    success: { text: "一周扫进两万名应届生，宿舍群里全是你的二维码。有辅导员主动来谈合作——他也要指导学生就业率。", fx: { traction: 6, cash: 1, health: -3 } },
+    mid:     { text: "扫码的不少，付费的不多。你摸清了真相：学生的钱最难赚，但学生的焦虑最真实。", fx: { traction: 2, health: -4 } },
+    fail:    { text: "「退费」横幅被较真的家长看到，几个没拿到 offer 的用户组团上门。你退了钱，还上了学校树洞热帖。", fx: { health: -8, network: -3, cash: -1 } },
+  },
+  {
+    id: "AI103", phase: 1, tag: "产品", title: "打磨提示词「护城河」",
+    scene: "CTO 说咱们的核心竞争力是三千行精心调制的提示词。你决定花一个月把它打磨到极致。",
+    checkAttr: "team", S: 8, F: 4, ideaOnly: "ai",
+    success: { text: "新版模拟面试官会追问、会施压、还会冷场十秒逼你说话，用户直呼「比真面试官还狠」。付费率涨了。", fx: { traction: 4, team: 3 } },
+    mid:     { text: "效果好了一点，但你半夜睡不着想：这玩意儿真的算护城河吗？河对岸的人游过来只要一个下午。", fx: { traction: 1 } },
+    fail:    { text: "开源社区放出了一个免费平替，效果和你的九成相似。CTO 沉默地关掉了「护城河」文档。", fx: { traction: -3, team: -3 } },
+  },
+  {
+    id: "AI104", phase: 1, tag: "产品", title: "切换更便宜的开源模型",
+    scene: "API 账单一月比一月吓人。工程师提议把一半流量切到开源模型上，成本能砍七成——如果效果不崩的话。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "ai",
+    success: { text: "灰度切换丝般顺滑，用户毫无感知，成本直接砍半。你给工程师团队加了鸡腿。", fx: { cash: 3, traction: 2 } },
+    mid:     { text: "成本是降了，但复杂问题的回答质量肉眼可见地下滑。你把付费用户悄悄切回了原模型。", fx: { cash: 1, team: -2 } },
+    fail:    { text: "开源模型半夜开始幻觉大爆发，把一位用户的模拟面试评价写成了藏头诗。截图传遍了脉脉。", fx: { traction: -4, team: -4 } },
+  },
+  {
+    id: "AI105", phase: 1, tag: "增长", title: "在小红书晒学员捷报",
+    scene: "运营提议把用户拿到 offer 的感谢截图做成内容矩阵：「三个月，从被拒 47 次到手握 3 个大厂 offer」。",
+    checkAttr: "network", S: 11, F: 6, ideaOnly: "ai",
+    success: { text: "捷报帖连续爆了三条，评论区全是「求链接」。你第一次体会到焦虑经济的威力，有点爽，又有点愧疚。", fx: { traction: 6, network: 4 } },
+    mid:     { text: "点赞不少，转化一般。用户看完帖子焦虑了，然后关掉了小红书，该睡睡。", fx: { traction: 2 } },
+    fail:    { text: "有人扒出一张截图的时间戳对不上，评论区开始刷「造假」。虽然只是运营配图配错了，但解释没人听。", fx: { network: -6, traction: -2 } },
+  },
+
+  /* ============ 阶段一 · 熬夜水专属 ============ */
+  {
+    id: "BR101", phase: 1, tag: "渠道", title: "便利店冰柜攻坚战",
     scene: "你约到了连锁便利店的采购总监。进场费不便宜，但那可是打工人每天路过三次的冰柜。",
     checkAttr: "network", S: 14, F: 8, ideaOnly: "brand",
-    success: { text: "总监试喝后当场拍板先进 200 家门店。你在第一家上架的门店冰柜前拍了张照，手是抖的。", fx: { cash: 18, network: 8 } },
-    mid:     { text: "进了 30 家门店试销，条件苛刻，账期 90 天。供应链同事开始掉头发。", fx: { cash: 5, network: 3, team: -3 } },
-    fail:    { text: "进场费交了，铺货了，动销惨淡，三个月后被清场。仓库里退回的货堆成了小山。", fx: { cash: -12, network: -4 } },
+    success: { text: "总监试喝后当场拍板先进 200 家门店。你在第一家上架的门店冰柜前拍了张照，手是抖的。", fx: { traction: 6, cash: 3, network: 4 } },
+    mid:     { text: "进了 30 家门店试销，条件苛刻，账期 90 天。供应链同事开始掉头发。", fx: { traction: 2, cash: -1, team: -2 } },
+    fail:    { text: "进场费交了，铺货了，动销惨淡，三个月后被清场。仓库里退回的货堆成了小山。", fx: { cash: -3, network: -4 } },
   },
   {
-    id: "A18", phase: 1, title: "【芯片检测仪】申请高校联合实验室",
-    scene: "母校实验室有你们急需的设备和研究生人力，导师暗示「可以谈一个联合实验室」。",
-    checkAttr: "team", S: 11, F: 6, ideaOnly: "hardtech",
-    success: { text: "联合实验室挂牌，两位博士生驻场，研发进度直接快进半年。挂牌照片上了学院官网。", fx: { team: 12, network: 8, cash: -5 } },
-    mid:     { text: "谈成了，但学校流程走了俩月，经费分摊比预期高。科研圈的水，果然不浅。", fx: { team: 5, cash: -6 } },
-    fail:    { text: "立项在学术委员会被卡，评审老师正好是导师的老对头。你第一次见识了学术界的暗流。", fx: { network: -6, health: -5 } },
+    id: "BR102", phase: 1, tag: "供应链", title: "和代工厂谈账期",
+    scene: "现金流全卡在货上。你决定亲自去代工厂，和老板娘谈一个更长的账期——带着诚意，和两条软中华。",
+    checkAttr: "network", S: 11, F: 6, ideaOnly: "brand",
+    success: { text: "老板娘看你实在，账期从 30 天放宽到 90 天，还答应小批量翻单不加价。现金流瞬间缓了一大口气。", fx: { cash: 4, team: 2 } },
+    mid:     { text: "账期多给了两周，条件是下批订单量翻倍。你签了，然后开始琢磨这批货往哪儿卖。", fx: { cash: 2 } },
+    fail:    { text: "话没谈拢，老板娘反而觉得你资金链有问题，要求下批全款现结。你在回程的车上一根接一根地叹气。", fx: { cash: -2, team: -3 } },
   },
   {
-    id: "B01", phase: 2, title: "启动 A 轮融资",
-    scene: "账上的钱又见底了。这次你要见的不是天使，是拿着 Excel 逐行盘问你单位经济模型的机构 VC。",
-    checkAttr: "network", S: 17, F: 10, ideaOnly: null,
-    success: { text: "三个月、41 场会、9 轮尽调后，TS 终于签了。领投合伙人说：「数据一般，但你这个人我们投了。」", fx: { cash: 30, network: 8, health: -5 } },
-    mid:     { text: "机构都在观望，最后老股东追加了一笔过桥贷款。「桥」的那头是什么，谁也不知道。", fx: { cash: 10, health: -8 } },
-    fail:    { text: "赛道遇冷，41 场会换来 41 句「保持联系」。消息传开，两个核心员工开始「出去看看机会」。", fx: { network: -8, health: -10, team: -5 } },
+    id: "BR103", phase: 1, tag: "增长", title: "小红书 KOC 铺量种草",
+    scene: "投不起头部博主，你圈了两百个千粉小博主，人均一箱货加一顿下午茶的预算，赌一个自来水式的口碑。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: "brand",
+    success: { text: "两百篇笔记里爆了七篇，「打工人续命水」的标签开始自发传播。天猫店铺访客翻了四倍。", fx: { traction: 7, cash: -2, network: 2 } },
+    mid:     { text: "笔记发了，数据平平。你盯着后台发现：种草最有效的那篇，是一个博主吐槽你包装丑的。", fx: { traction: 2, cash: -2 } },
+    fail:    { text: "被平台判定营销笔记批量限流，两百篇一夜清零。中介劝你「加钱走内部渠道」，你听出了这行水有多深。", fx: { cash: -3, network: -3 } },
   },
   {
-    id: "B02", phase: 2, title: "扩张到三个新城市",
-    scene: "本地模式基本跑通，董事会催你「快速复制」。你圈定了三个城市，准备开疆拓土。",
-    checkAttr: "cash", S: 14, F: 8, ideaOnly: null,
-    success: { text: "三城两个月落地，其中一城数据比大本营还好。你在全员会上说：「我们不再是一家本地公司了。」", fx: { network: 12, cash: 10, team: 5 } },
-    mid:     { text: "城市开了，模式水土不服，本地化改造烧钱如流水。「复制」原来是世界上最贵的词之一。", fx: { cash: -10, team: 3 } },
-    fail:    { text: "三城全线亏损，半年后收缩撤退。留下的是没到期的办公室租约和一批安置不了的员工。", fx: { cash: -20, team: -8 } },
+    id: "BR104", phase: 1, tag: "增长", title: "夜市摆摊免费试饮",
+    scene: "写字楼下的夜市烟火气正旺。你搬了两箱货、一张折叠桌，挂上灯牌：「加班的，免费喝。」",
+    checkAttr: "health", S: 8, F: 4, ideaOnly: "brand",
+    success: { text: "三个晚上送出八百瓶，加了五百个企业微信。一个常加班的程序员当场团购了十箱给全组。", fx: { traction: 5, network: 2, health: -3 } },
+    mid:     { text: "喝的人多，买的人少。但你听到了最真实的反馈：「好喝是好喝，就是名字听着像交智商税。」", fx: { traction: 2, health: -4 } },
+    fail:    { text: "连摆一周你重感冒发烧，摊位还被城管劝离了两次。冰袋钱比卖货的钱花得多。", fx: { health: -7, cash: -1 } },
   },
   {
-    id: "B03", phase: 2, title: "高薪挖职业高管",
+    id: "BR105", phase: 1, tag: "产品", title: "重写卖点与包装文案",
+    scene: "「0 糖 0 卡 0 负担」满大街都是。你把团队关进会议室：这瓶水到底凭什么让人买第二次？",
+    checkAttr: "team", S: 8, F: 4, ideaOnly: "brand",
+    success: { text: "新文案「熬的是夜，续的是命」贴上瓶身，复购率悄悄涨了。有用户拍瓶身发朋友圈——包装成了免费广告位。", fx: { traction: 4, network: 3 } },
+    mid:     { text: "改了八版，最后选了最保守的那版。不功不过，像大多数货架上的饮料一样安全，也一样无聊。", fx: { traction: 1 } },
+    fail:    { text: "新包装被吐槽「阴间配色」，测评博主拿它当反面案例讲了一期。你连夜恢复了旧版设计。", fx: { network: -4, traction: -2 } },
+  },
+
+  /* ============ 阶段一 · 新月环专属 ============ */
+  {
+    id: "RG101", phase: 1, tag: "供应链", title: "华强北供应链淘金",
+    scene: "你揣着样机图纸扎进华强北，要在一百家方案商里找到那个既能做好传感器、又不会转头把你方案卖掉的厂。",
+    checkAttr: "network", S: 11, F: 6, ideaOnly: "ring",
+    success: { text: "一位做了十五年穿戴设备的厂长看懂了你的图纸，报价公道还提了三个改进建议。你找到了自己的「深圳合伙人」。", fx: { team: 4, network: 4, cash: 1 } },
+    mid:     { text: "谈了七家，各有各的坑：要么起订量吓人，要么模具费离谱。你先下了个小单试水。", fx: { team: 2, cash: -1 } },
+    fail:    { text: "定金付了，工厂却把你的订单排在大客户后面一拖再拖。提货那天你发现良品率不到六成。", fx: { cash: -3, team: -3 } },
+  },
+  {
+    id: "RG102", phase: 1, tag: "产品", title: "邀请目标用户社群深度内测",
+    scene: "你联系了几个海外穆斯林科技社群，招募一百位内测用户，请他们严格检验礼拜时间和朝向指引的准确性。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "ring",
+    success: { text: "内测用户认真得超乎想象，反馈文档写了四十页。一位用户留言：「谢谢你们认真对待我们的生活。」团队把这句话贴在了墙上。", fx: { traction: 6, network: 3 } },
+    mid:     { text: "反馈两极：功能被认可，做工被吐槽。「像戴着一枚螺母」——这条你让工业设计师抄了十遍。", fx: { traction: 2, team: -2 } },
+    fail:    { text: "高纬度地区的礼拜时间算法出了偏差，被内测用户严肃指出。你们公开道歉并承诺重写算法——信任这东西，碎了很难粘。", fx: { traction: -3, network: -4 } },
+  },
+  {
+    id: "RG103", phase: 1, tag: "增长", title: "上线 Kickstarter 众筹",
+    scene: "海外硬件的成人礼：众筹页面打磨了一个月，视频拍了三版，目标金额定在一个「跳一跳够得着」的数字。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "ring",
+    success: { text: "48 小时破目标，最终超募六倍。评论区变成了功能许愿池，还有三家海外媒体主动报道。", fx: { cash: 6, traction: 7 } },
+    mid:     { text: "众筹达标线擦线通过。钱不多，但一千多位真金白银的支持者，是比钱更硬的证明。", fx: { cash: 2, traction: 2 } },
+    fail:    { text: "众筹失败，页面停在 71%。复盘发现视频里的样机演示被眼尖的网友指出是渲染动画——出海第一课：老外真的会较真。", fx: { network: -5, traction: -3 } },
+  },
+  {
+    id: "RG104", phase: 1, tag: "产品", title: "死磕朝向指引精度",
+    scene: "地磁传感器在城市高楼间漂移严重。算法工程师说要重写校准方案，这意味着发货再延一个月。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "ring",
+    success: { text: "新校准方案把误差压进一度以内，内测用户实测点赞。「精度就是我们的信仰」成了团队的口头禅。", fx: { traction: 5, team: 3 } },
+    mid:     { text: "精度提升了，功耗也提升了。续航从七天掉到五天，你在两个指标之间反复横跳。", fx: { team: 1, health: -4 } },
+    fail:    { text: "重写的算法在南半球出现镜像偏差，澳洲用户集体反馈。你一边道歉一边意识到：全球化硬件，测试也得全球化。", fx: { traction: -3, team: -4 } },
+  },
+  {
+    id: "RG105", phase: 1, tag: "人脉", title: "飞迪拜参加科技展",
+    scene: "中东最大的科技展开幕，展位费不菲。你订了最便宜的红眼航班，行李箱里塞了五十枚样机。",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: "ring",
+    success: { text: "样机三天被抢空，两家当地经销商当场要签区域代理，还有一位官员在你展位停留了十分钟。这趟值了。", fx: { network: 10, traction: 4, cash: -2 } },
+    mid:     { text: "名片收了一沓，意向签了几张，回国后跟进一半没了下文。中东生意，节奏和你想的不一样。", fx: { network: 4, cash: -3 } },
+    fail:    { text: "展位被安排在角落，人流稀少。更惨的是回程航班取消，你在机场地毯上睡了一夜，样机箱当了枕头。", fx: { cash: -4, health: -6 } },
+  },
+
+  /* ============ 阶段一/二 · 陷阱选项（阶段错位，怎么选都没好果子） ============ */
+  {
+    id: "T01", phase: 1, tag: "资本", title: "约见投行 MD 聊上市",
+    scene: "一位「专注 TMT 的投行 MD」加了你微信，说可以「提前规划资本路径」。你司目前八个人，上个月流水刚过五位数。",
+    checkAttr: "network", S: 11, F: 6, ideaOnly: null, maxStage: 2,
+    success: { text: "MD 全程微笑听完你的宏图，临走时说：「很有意思，等你们 C 轮我们再深聊。」这顿饭你买的单。", fx: { health: -3 } },
+    mid:     { text: "聊了两小时资本运作，你听得云里雾里，回来查了半天名词。唯一确定的是：这两小时本可以用来改产品。", fx: { health: -4, network: -2 } },
+    fail:    { text: "你把「投行都主动找我们了」讲给投资人听，对方沉默了三秒：「你们现在最该见的是用户。」这话传开了，圈内都觉得你飘了。", fx: { network: -5, health: -5 } },
+  },
+  {
+    id: "T02", phase: 1, tag: "排面", title: "租下 CBD 甲级写字楼",
+    scene: "中介说这层带江景的办公室「配得上你的野心」，还能「提升融资形象」。押三付一，你看了眼账上余额。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: null, maxStage: 1,
+    success: { text: "办公室确实气派，来访的投资人却盯着前台问：「你们几个人？租这么大？」你听懂了潜台词。", fx: { cash: -3, team: 1 } },
+    mid:     { text: "搬进去第一个月，工位空了一半，物业费比你想的贵一倍。江景很美，账单更醒目。", fx: { cash: -4 } },
+    fail:    { text: "签完约赶上业务波动，房租成了每月最大的固定支出。半年后你搬回了产业园，转租亏掉一笔违约金。", fx: { cash: -5, team: -3 } },
+  },
+  {
+    id: "T03", phase: 2, tag: "排面", title: "冠名跨年晚会打品牌",
+    scene: "广告代理拍着胸脯说：「一夜之间让三亿人记住你。」报价单上的数字，够你们烧一年。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: null, maxStage: 2,
+    success: { text: "晚会当晚你的 logo 确实闪了八秒。第二天百度指数涨了，订单没涨。三亿人记住了晚会，没记住你。", fx: { cash: -8, traction: 1 } },
+    mid:     { text: "冠名费打了水漂一半——你冠名的分会场收视率扑街。代理安慰你：「品牌是长期工程。」", fx: { cash: -10 } },
+    fail:    { text: "晚会出了负面舆情，连带赞助商一起被网友嘲讽。你花大价钱买了个负资产，董事会要你写说明。", fx: { cash: -12, network: -4 } },
+  },
+  {
+    id: "T04", phase: 3, tag: "情怀", title: "创始人亲自写代码上线功能",
+    scene: "你怀念写代码的日子。趁着深夜没人，你决定亲手实现一个惦记很久的小功能，明早直接上线给大家一个惊喜。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: null, minStage: 2,
+    success: { text: "功能上线了，代码评审时 CTO 沉默许久：「架构上……我们周会聊聊。」团队用了两周把它重构成能维护的样子。", fx: { health: -4, team: -2 } },
+    mid:     { text: "你写到凌晨四点，发现自己已经看不懂现在的代码库了。功能没上线，第二天的董事会你打了瞌睡。", fx: { health: -6 } },
+    fail:    { text: "你绕过流程直接发布，线上事故持续两小时。事后复盘会上，全公司都知道了事故原因是「CEO 提交的代码」。", fx: { team: -6, health: -5, traction: -2 } },
+  },
+
+  /* ============ 阶段二 · 通用（第 2–3 年 · 每季度） ============ */
+  {
+    id: "P201", phase: 2, tag: "战略", title: "扩张新市场",
+    scene: "本地模式基本跑通，董事会催你「快速复制」。你圈定了三个新市场，准备开疆拓土。",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: null, minStage: 1,
+    success: { text: "三个市场两个月落地，其中一个数据比大本营还好。你在全员会上说：「我们不再是一家小公司了。」", fx: { traction: 8, cash: 5, network: 4 } },
+    mid:     { text: "市场开了，模式水土不服，本地化改造烧钱如流水。「复制」原来是世界上最贵的词之一。", fx: { cash: -8, traction: 2 } },
+    fail:    { text: "全线亏损，半年后收缩撤退。留下的是没到期的租约和一批安置不了的员工。", fx: { cash: -15, team: -6 } },
+  },
+  {
+    id: "P202", phase: 2, tag: "团队", title: "高薪挖职业高管",
     scene: "公司大了，草台班子玩不转了。猎头推来一位大厂副总裁，开价是你工资的五倍。",
-    checkAttr: "cash", S: 14, F: 8, ideaOnly: null,
-    success: { text: "她入职三个月就把混乱的中层理顺了，还带来了整套方法论。你第一次觉得「贵有贵的道理」。", fx: { team: 15, network: 8, cash: -10 } },
-    mid:     { text: "能力是有的，但大厂做派水土不服，动辄要预算要 headcount。老员工私下叫她「PPT 女王」。", fx: { team: 4, cash: -12 } },
-    fail:    { text: "空降兵和老团队全面开战，三个月走了五个老人。最后她也走了，留下一地鸡毛和一份天价离职补偿。", fx: { cash: -15, team: -10 } },
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: null, minStage: 1,
+    success: { text: "她入职三个月就把混乱的中层理顺了，还带来了整套方法论。你第一次觉得「贵有贵的道理」。", fx: { team: 14, network: 5, cash: -5 } },
+    mid:     { text: "能力是有的，但大厂做派水土不服，动辄要预算要 headcount。老员工私下叫她「PPT 女王」。", fx: { team: 4, cash: -8 } },
+    fail:    { text: "空降兵和老团队全面开战，三个月走了五个老人。最后她也走了，留下一地鸡毛和一份天价离职补偿。", fx: { cash: -10, team: -10 } },
   },
   {
-    id: "B04", phase: 2, title: "推动公司制度化",
+    id: "P203", phase: 2, tag: "团队", title: "推动公司制度化",
     scene: "公司人数破了五十，靠吼已经管不过来了。你决定上 OKR、定级、绩效——所有你当年在大厂最讨厌的东西。",
     checkAttr: "team", S: 11, F: 6, ideaOnly: null,
-    success: { text: "制度落地意外顺滑，扯皮少了，该拿结果的人拿到了结果。你对着 OKR 看板感慨：真香。", fx: { team: 12, health: 4 } },
+    success: { text: "制度落地意外顺滑，扯皮少了，该拿结果的人拿到了结果。你对着 OKR 看板感慨：真香。", fx: { team: 10, health: 4 } },
     mid:     { text: "制度是有了，执行全靠你盯。你成了全公司最大的「人肉流程引擎」。", fx: { team: 3, health: -5 } },
-    fail:    { text: "OKR 变成填表大赛，绩效引发内斗，最会干活的人第一个提了离职：「我来创业公司不是为了写周报的。」", fx: { team: -10, health: -6 } },
+    fail:    { text: "OKR 变成填表大赛，绩效引发内斗，最会干活的人第一个提了离职：「我来创业公司不是为了写周报的。」", fx: { team: -10, health: -5 } },
   },
   {
-    id: "B05", phase: 2, title: "硬刚大厂抄袭",
+    id: "P204", phase: 2, tag: "战略", title: "硬刚大厂抄袭",
     scene: "大厂新版本上线，你的核心功能被「像素级致敬」。全公司都在等你表态：打，还是躲？",
     checkAttr: "team", S: 14, F: 8, ideaOnly: null,
-    success: { text: "你发了一篇不卑不亢的公开信，配上功能上线时间线对比图，舆论一边倒。当季留存不降反升——用户用脚投票站了你。", fx: { network: 15, team: 10 } },
-    mid:     { text: "你选择闷头做差异化，避开正面战场。活是活下来了，但增长肉眼可见地慢了。", fx: { team: 4, network: 3, health: -6 } },
-    fail:    { text: "你头铁跟大厂打补贴战，对方眼都没眨。一个季度后你先停了火——子弹打光了。", fx: { cash: -15, team: -8, network: -5 } },
+    success: { text: "你发了一篇不卑不亢的公开信，配上功能上线时间线对比图，舆论一边倒。当季留存不降反升——用户用脚投票站了你。", fx: { network: 12, traction: 6 } },
+    mid:     { text: "你选择闷头做差异化，避开正面战场。活是活下来了，但增长肉眼可见地慢了。", fx: { traction: 2, health: -6 } },
+    fail:    { text: "你头铁跟大厂打补贴战，对方眼都没眨。一个季度后你先停了火——子弹打光了。", fx: { cash: -10, traction: -5, network: -4 } },
   },
   {
-    id: "B06", phase: 2, title: "出海东南亚",
-    scene: "国内卷不动了，你盯上了东南亚市场。机票订好了，行李箱里塞满了产品手册和肠胃药。",
-    checkAttr: "network", S: 14, F: 8, ideaOnly: null,
-    success: { text: "新加坡的demo day上你签下了当地合作方，产品本地化版本首月数据超预期。你发了条朋友圈：Sea you there。", fx: { cash: 15, network: 12 } },
-    mid:     { text: "跑了三个国家，合作聊了七八个，落地的暂时没有。但至少，你知道了「东南亚」不是一个市场，是十个。", fx: { cash: -8, network: 5 } },
-    fail:    { text: "合作方收了预付款后开始已读不回，你飞过去发现办公室已人去楼空。回国的飞机上你全程没说话。", fx: { cash: -15, health: -8 } },
-  },
-  {
-    id: "B07", phase: 2, title: "死磕标杆大客户",
+    id: "P205", phase: 2, tag: "渠道", title: "死磕标杆大客户",
     scene: "行业头部企业放出采购意向，谁拿下谁就是「服务过头部客户」的公司。你亲自带队进驻投标。",
     checkAttr: "network", S: 14, F: 8, ideaOnly: null,
-    success: { text: "熬了三轮竞标，你们以方案分第一中标。签约照片发出去当天，三个同行业客户主动询价。", fx: { cash: 20, network: 12, health: -5 } },
-    mid:     { text: "拿下了个「试点项目」，金额不大要求巨多，做完能不能转正式合同，看缘分。", fx: { cash: 6, health: -8 } },
-    fail:    { text: "陪标三个月，最后输给了报价高你三倍的关系户。团队看着做废的方案，谁也没说话。", fx: { cash: -8, health: -8, team: -4 } },
+    success: { text: "熬了三轮竞标，你们以方案分第一中标。签约照片发出去当天，三个同行业客户主动询价。", fx: { cash: 12, traction: 6, network: 8 } },
+    mid:     { text: "拿下了个「试点项目」，金额不大要求巨多，做完能不能转正式合同，看缘分。", fx: { cash: 3, health: -8 } },
+    fail:    { text: "陪标三个月，最后输给了报价高你三倍的关系户。团队看着做废的方案，谁也没说话。", fx: { health: -8, team: -4, cash: -3 } },
   },
   {
-    id: "B08", phase: 2, title: "涨价并重构商业模式",
+    id: "P206", phase: 2, tag: "资金", title: "涨价并重构商业模式",
     scene: "算完账你发现每单都在亏钱，「用爱发电」到头了。你决定涨价 40%，并砍掉免费套餐。",
     checkAttr: "cash", S: 14, F: 8, ideaOnly: null,
-    success: { text: "流失比预期少得多，留下的都是真愿意付钱的。你在董事会上第一次说出「我们单位经济模型转正了」。", fx: { cash: 20, team: 4 } },
-    mid:     { text: "钱是多了点，但社交媒体上「吃相难看」的骂声不断。你安慰自己：骂你的人本来也不付钱。", fx: { cash: 8, network: -5 } },
-    fail:    { text: "核心客户带头流失，竞品趁机打出「不涨价」的旗号收割。你两个月后灰溜溜降回原价，两头没落好。", fx: { cash: -12, network: -8 } },
+    success: { text: "流失比预期少得多，留下的都是真愿意付钱的。你在董事会上第一次说出「我们单位经济模型转正了」。", fx: { cash: 12, traction: -2 } },
+    mid:     { text: "钱是多了点，但社交媒体上「吃相难看」的骂声不断。你安慰自己：骂你的人本来也不付钱。", fx: { cash: 5, network: -4, traction: -3 } },
+    fail:    { text: "核心客户带头流失，竞品趁机打出「不涨价」的旗号收割。你两个月后灰溜溜降回原价，两头没落好。", fx: { traction: -8, cash: -6, network: -5 } },
   },
   {
-    id: "B09", phase: 2, title: "创始人亲自做网红",
+    id: "P207", phase: 2, tag: "增长", title: "创始人亲自做网红",
     scene: "投流太贵，你决定亲自上阵拍短视频，账号名就叫「一个不装的创始人」。",
     checkAttr: "health", S: 11, F: 6, ideaOnly: null,
-    success: { text: "第三条视频爆了，涨粉二十万，评论区一半在心疼你一半在下单。市场部的投放预算省了一大截。", fx: { network: 15, cash: 10, health: -5 } },
-    mid:     { text: "粉丝涨到小几万就停了，每周三条的更新压力比融资还大。你现在看到补光灯就胃疼。", fx: { network: 5, health: -8 } },
+    success: { text: "第三条视频爆了，涨粉二十万，评论区一半在心疼你一半在下单。市场部的投放预算省了一大截。", fx: { network: 12, traction: 7, health: -5 } },
+    mid:     { text: "粉丝涨到小几万就停了，每周三条的更新压力比融资还大。你现在看到补光灯就胃疼。", fx: { network: 4, health: -8 } },
     fail:    { text: "一条视频里你随口吐槽同行被断章取义，评论区沦陷，还惊动了对方的法务函。你停更了，头像也换成了灰色。", fx: { network: -8, health: -10 } },
   },
   {
-    id: "B10", phase: 2, title: "数据「优化」冲 KPI",
+    id: "P208", phase: 2, tag: "资金", title: "数据「优化」冲 KPI",
     scene: "下一轮融资在即，增长曲线不够性感。运营总监小声说：「有些数据……可以优化一下。」你知道他说的「优化」是什么意思。",
     checkAttr: null, S: 14, F: 8, ideaOnly: null,
-    success: { text: "数据「优化」得天衣无缝，融资顺利推进。只有你知道真实曲线长什么样，它每晚都在你梦里出现。", fx: { cash: 15, health: -8 } },
-    mid:     { text: "你半途叫停了这件事，把真实数据摆上了桌。投资人皱着眉，但没走。你睡了三个月来第一个整觉。", fx: { health: -10 } },
-    fail:    { text: "尽调机构抽样回访时露了馅。领投方退出，消息在圈内传开。「那家数据有问题的公司」——这个标签你撕了很多年。", fx: { network: -15, cash: -10, team: -8 } },
+    success: { text: "数据「优化」得天衣无缝，故事顺利讲圆。只有你知道真实曲线长什么样，它每晚都在你梦里出现。", fx: { traction: 4, cash: 5, health: -8 } },
+    mid:     { text: "你半途叫停了这件事，把真实数据摆上了桌。投资人皱着眉，但没走。你睡了三个月来第一个整觉。", fx: { health: -8 } },
+    fail:    { text: "尽调机构抽样回访时露了馅。消息在圈内传开。「那家数据有问题的公司」——这个标签你撕了很多年。", fx: { network: -14, traction: -6, cash: -5 } },
   },
   {
-    id: "B11", phase: 2, title: "组织瘦身砍业务线",
+    id: "P209", phase: 2, tag: "团队", title: "组织瘦身砍业务线",
     scene: "三条业务线两条亏损，董事会给你的词是「聚焦」。你知道，聚焦的另一面是裁员。",
     checkAttr: "team", S: 8, F: 4, ideaOnly: null,
-    success: { text: "你亲自跟每个受影响的人谈话，方案给足了体面。留下来的人反而松了口气：公司终于像有方向了。", fx: { cash: 12, team: -4, health: -4 } },
-    mid:     { text: "业务砍了，钱省了，但「下一个是不是我」的空气在办公室飘了一个季度。", fx: { cash: 6, team: -8 } },
-    fail:    { text: "裁员消息提前泄露，核心员工恐慌性出走，比你计划裁掉的还多一倍。脉脉上你公司的词条热闹了一周。", fx: { team: -15, network: -6 } },
+    success: { text: "你亲自跟每个受影响的人谈话，方案给足了体面。留下来的人反而松了口气：公司终于像有方向了。", fx: { cash: 8, team: -3, health: -3 } },
+    mid:     { text: "业务砍了，钱省了，但「下一个是不是我」的空气在办公室飘了一个季度。", fx: { cash: 4, team: -7 } },
+    fail:    { text: "裁员消息提前泄露，核心员工恐慌性出走，比你计划裁掉的还多一倍。脉脉上你公司的词条热闹了一周。", fx: { team: -14, network: -6 } },
   },
   {
-    id: "B12", phase: 2, title: "【面试猫】自研模型还是继续套壳",
+    id: "P210", phase: 2, tag: "数据", title: "搭建数据中台",
+    scene: "各业务的数据散落在十几张表里，口径打架打了半年。CTO 说：再不建数据中台，我们连自己都骗不明白了。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: null, minStage: 2,
+    success: { text: "三个月后全公司只剩一个数据口径，周会吵架时间少了一半。你第一次能在十秒内答出「我们的留存到底是多少」。", fx: { team: 8, traction: 4, cash: -3 } },
+    mid:     { text: "中台建了一半，业务方嫌接入麻烦不肯迁。你拥有了两套口径打架的系统——比原来多了一套。", fx: { cash: -5, team: 2 } },
+    fail:    { text: "外聘的架构师做了个「大而全」的方案，烧钱半年落不了地。项目烂尾那天，工程师们默默把它命名为「数据烂尾楼」。", fx: { cash: -8, team: -5 } },
+  },
+  {
+    id: "P211", phase: 2, tag: "增长", title: "组建增长黑客小组",
+    scene: "融到钱了，该学硅谷立个「Growth Team」了。你挑了四个最野的年轻人，KPI 只有一个：涨。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: null, minStage: 2,
+    success: { text: "小组第一个月做了四十次 A/B 实验，找到了两个撬动增长的钩子。数据大盘的斜率肉眼可见地变了。", fx: { traction: 8, cash: -3, team: 3 } },
+    mid:     { text: "实验做了不少，赢的不多。唯一确定的增长秘诀是发优惠券——这不用黑客，用钱就行。", fx: { traction: 2, cash: -4 } },
+    fail:    { text: "为了冲数据，小组搞了个擦边裂变活动，被平台通报封禁。「增长黑客」变成了「增长黑名单」。", fx: { traction: -5, cash: -3, network: -4 } },
+  },
+
+  /* ============ 阶段二 · Offer 菩萨专属 ============ */
+  {
+    id: "AI201", phase: 2, tag: "产品", title: "自研垂直模型还是套壳到底",
     scene: "API 成本吃掉一半毛利，CTO 拍桌子要自研垂直小模型。自研是无底洞，套壳是慢性死亡，你必须选一个。",
-    checkAttr: "team", S: 17, F: 10, ideaOnly: "ai",
-    success: { text: "垂直小模型半年练成，成本降了七成，效果反超通用大模型。这一仗打完，团队都敢自称「AI 公司」了。", fx: { team: 12, cash: 15, network: 5 } },
-    mid:     { text: "模型是练出来了，效果和 API 五五开。好消息是有了技术故事，坏消息是钱真的烧没了不少。", fx: { cash: -12, team: 5 } },
-    fail:    { text: "算力烧完，模型拉胯，两个算法工程师被大厂三倍薪挖走。你重新打开了 API 控制台，续了费。", fx: { cash: -20, team: -8, health: -6 } },
+    checkAttr: "team", S: 17, F: 10, ideaOnly: "ai", minStage: 1,
+    success: { text: "垂直小模型半年练成，成本降了七成，效果反超通用大模型。这一仗打完，团队都敢自称「AI 公司」了。", fx: { team: 10, cash: 8, traction: 5 } },
+    mid:     { text: "模型是练出来了，效果和 API 五五开。好消息是有了技术故事，坏消息是钱真的烧没了不少。", fx: { cash: -10, team: 4 } },
+    fail:    { text: "算力烧完，模型拉胯，两个算法工程师被大厂三倍薪挖走。你重新打开了 API 控制台，续了费。", fx: { cash: -15, team: -8, health: -6 } },
   },
   {
-    id: "B13", phase: 2, title: "【熬夜水】冲进头部直播间",
+    id: "AI202", phase: 2, tag: "战略", title: "转型 B 端卖给企业 HR",
+    scene: "C 端付费天花板肉眼可见。有 HR 主动来问：能不能给我们公司做一套 AI 面试官？你嗅到了 B 端的钱味。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "ai", minStage: 1,
+    success: { text: "首批签下八家企业客户，客单价是 C 端的两百倍。销售说：「原来标价后面多写一个零，客户反而更信了。」", fx: { traction: 8, cash: 8 } },
+    mid:     { text: "签了两家试点，定制需求多到离谱。你一边收着钱一边怀疑：我们到底是产品公司还是外包公司？", fx: { traction: 2, cash: 2, team: -3 } },
+    fail:    { text: "B 端销售周期长到怀疑人生，跟了半年的大单最后被甲方内部关系户截胡。C 端数据还因为没人管掉了一截。", fx: { traction: -4, network: -5 } },
+  },
+  {
+    id: "AI203", phase: 2, tag: "团队", title: "算法人才军备竞赛",
+    scene: "大模型人才的价格一年翻三倍。猎头给你推了两位顶会论文选手，开价让你倒吸凉气。抢，还是不抢？",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: "ai", minStage: 1,
+    success: { text: "两位大神到位，模型迭代速度直接翻倍，招聘页面挂出他们名字后，简历量涨了三倍。人才吸引人才，真香。", fx: { team: 10, traction: 4, cash: -6 } },
+    mid:     { text: "人来了一个，另一个被大厂用你出不起的价截胡。来的这位很强，但一个人扛不起一条产品线。", fx: { team: 4, cash: -6 } },
+    fail:    { text: "高薪挖来的大神水土不服，三个月没出活儿还带崩了原团队的薪资心态。他离职那天，老工程师集体来找你谈涨薪。", fx: { cash: -8, team: -6 } },
+  },
+  {
+    id: "AI204", phase: 2, tag: "合规", title: "算法备案与内容合规",
+    scene: "监管新规落地，AI 产品要做算法备案。法务说流程要三个月，工程师说要改的东西「比重写还多」。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "ai",
+    success: { text: "你们成了赛道里最早拿到备案的公司之一。大客户采购时把这行小字看得比功能还重——合规成了你的销售武器。", fx: { network: 6, traction: 3 } },
+    mid:     { text: "备案过了，但砍掉了两个擦边功能，用户骂骂咧咧。合规的代价，先痛后甜——希望如此。", fx: { team: -3, traction: -1 } },
+    fail:    { text: "整改期产品被下架两周，恢复上架后日活掉了三成。你在全员信里写：「活下来的公司，都是合规的公司。」", fx: { traction: -7, cash: -3 } },
+  },
+  {
+    id: "AI205", phase: 2, tag: "增长", title: "上线「AI 嘴替」简历代投",
+    scene: "增长团队憋了个大招：AI 自动优化简历并批量投递，主打「睡一觉醒来，面试约满」。灰色，但诱人。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "ai", minStage: 1,
+    success: { text: "功能一夜爆红，付费转化历史新高。招聘平台们咬牙切齿又无可奈何——你在规则边缘跳了一支漂亮的舞。", fx: { traction: 8, network: 3 } },
+    mid:     { text: "用户爱了，平台怒了。两家招聘网站开始封杀你的投递接口，你陷入了猫鼠游戏，每周都在改对抗策略。", fx: { traction: 3, team: -3 } },
+    fail:    { text: "批量投递触发了平台风控，大量用户账号被连坐封禁。退款潮加投诉潮，你紧急下架了功能并全网道歉。", fx: { traction: -5, network: -8 } },
+  },
+
+  /* ============ 阶段二 · 熬夜水专属 ============ */
+  {
+    id: "BR201", phase: 2, tag: "渠道", title: "冲进头部直播间",
     scene: "头部主播的选品团队报了个价：坑位费加佣金，够你半年的营销预算。但那可是一夜卖断货的机会。",
-    checkAttr: "cash", S: 17, F: 10, ideaOnly: "brand",
-    success: { text: "五分钟三十万单，工厂连夜三班倒。第二天「熬夜水」冲上热搜，经销商的电话把你手机打到发烫。", fx: { cash: 25, network: 10 } },
-    mid:     { text: "卖是卖爆了，可退货率和破损率也创了新高，一算账基本白干。供应链团队看你的眼神像看仇人。", fx: { cash: 5, team: -5 } },
-    fail:    { text: "直播前夜主播团队临时压价加赠品，你咬牙答应，结果当晚流量被隔壁大促全抢走。坑位费打了水漂——原来「坑位」是这个意思。", fx: { cash: -20, network: -5 } },
+    checkAttr: "cash", S: 17, F: 10, ideaOnly: "brand", minStage: 1,
+    success: { text: "五分钟三十万单，工厂连夜三班倒。第二天「熬夜水」冲上热搜，经销商的电话把你手机打到发烫。", fx: { cash: 15, traction: 8 } },
+    mid:     { text: "卖是卖爆了，可退货率和破损率也创了新高，一算账基本白干。供应链团队看你的眼神像看仇人。", fx: { cash: 2, team: -4 } },
+    fail:    { text: "直播前夜主播团队临时压价加赠品，你咬牙答应，结果当晚流量被隔壁大促全抢走。坑位费打了水漂——原来「坑位」是这个意思。", fx: { cash: -12, network: -4 } },
   },
   {
-    id: "B14", phase: 2, title: "【芯片检测仪】申报专精特新",
-    scene: "政策窗口期，「专精特新小巨人」申报开闸，补贴、贴息、政府订单一条龙。材料要准备三个月，你决定试试。",
-    checkAttr: "network", S: 11, F: 6, ideaOnly: "hardtech",
-    success: { text: "认定通过，补贴到账，产业园免了两年房租，还有国有大基金主动来聊战略投资。硬科技的春天，你赶上了。", fx: { cash: 20, network: 12 } },
-    mid:     { text: "今年名额没排上，但和科技局混了个脸熟，对方提点了明年申报的关键。来年再战。", fx: { network: 5, health: -5 } },
-    fail:    { text: "材料被打回三次，第三方咨询费花了不少，最后卡在一项资质年限上。你把申报指南读出了高考的感觉。", fx: { cash: -8, health: -8 } },
+    id: "BR202", phase: 2, tag: "渠道", title: "搭建全国经销商体系",
+    scene: "糖酒会上你的展位前围了一圈拿着计算器的经销商。他们能让你的货一夜铺遍全国，也能让你的价盘一夜崩塌。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "brand", minStage: 1,
+    success: { text: "你筛掉了只想赚快钱的，签下二十个愿意打陈列的省级经销商。三个月后，你在县城超市看到了自己的产品。", fx: { traction: 7, cash: 8, network: 5 } },
+    mid:     { text: "经销商签了一批，压货压出了漂亮的出货数据。只有你知道，那些货一半还在他们仓库里睡觉。", fx: { traction: 3, cash: -3 } },
+    fail:    { text: "两个大区窜货乱价打起来了，零售价一度低过出厂价。你飞了四个城市灭火，价盘还是伤了元气。", fx: { cash: -6, traction: -4, network: -3 } },
   },
   {
-    id: "C01", phase: 3, title: "启动上市筹备",
+    id: "BR203", phase: 2, tag: "产品", title: "推出第二条产品线",
+    scene: "一款单品撑不起一个品牌。会议室白板上写着三个候选：「开会水」「相亲水」「戒断水」。你圈了一个。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "brand",
+    success: { text: "新品上市三个月站稳脚跟，和熬夜水组成了「打工人全场景补给线」。渠道商拿货时终于开始说「各来一半」。", fx: { traction: 6, cash: 4 } },
+    mid:     { text: "新品不温不火，蹭着老品的渠道活着。财务说它「不亏钱」，这在新消费行业算表扬。", fx: { traction: 2, cash: -3 } },
+    fail:    { text: "新品口味翻车，测评视频里主播喝一口停了三秒：「兄弟们，这个真不行。」这条视频的播放量是你所有广告的总和。", fx: { cash: -5, traction: -3 } },
+  },
+  {
+    id: "BR204", phase: 2, tag: "增长", title: "跨界联名制造话题",
+    scene: "联名是新消费的社交货币。摆在你面前的选项：一个国民老字号，一个顶流游戏 IP，报价都不便宜。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "brand", minStage: 1,
+    success: { text: "联名款上线即售罄，小红书笔记两万篇，连黄牛都开始炒你的瓶子。品牌部集体加鸡腿。", fx: { traction: 8, network: 6, cash: -3 } },
+    mid:     { text: "话题有了，销量平平。用户拍完照发完圈，然后去买了平时喝的那款。你悟了：流量是流量，生意是生意。", fx: { traction: 2, cash: -4 } },
+    fail:    { text: "联名对象突然曝出负面，你的品牌被连带挂上热搜。联名款连夜下架，损失的不只是钱，还有半年的品牌心智。", fx: { network: -6, traction: -4, cash: -4 } },
+  },
+  {
+    id: "BR205", phase: 2, tag: "供应链", title: "自建产线还是继续代工",
+    scene: "代工厂产能排期越来越紧，品控问题隔三差五。自建产线要砸下你账上一半的钱——但那是真正的护城河。",
+    checkAttr: "cash", S: 17, F: 10, ideaOnly: "brand", minStage: 2,
+    success: { text: "产线投产，成本降了两成，品控自己说了算。竞品还在排队等代工产能时，你已经能三天出一个新 SKU。", fx: { cash: 5, team: 6, traction: 4 } },
+    mid:     { text: "产线建成了，爬坡比预期慢，良率上不去的那两个月，你天天蹲在车间跟工人一起找原因。", fx: { cash: -10, team: 3 } },
+    fail:    { text: "设备调试问题不断，投产延期半年，订单只能高价回流代工厂。重资产的学费，一交就是大几千万。", fx: { cash: -15, team: -5 } },
+  },
+
+  /* ============ 阶段二 · 新月环专属 ============ */
+  {
+    id: "RG201", phase: 2, tag: "供应链", title: "斋月季备货豪赌",
+    scene: "斋月前后是全年需求最高峰，经销商的预订单雪片般飞来。备多了压死现金流，备少了错过全年最大窗口。",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: "ring", minStage: 1,
+    success: { text: "你赌对了量。旺季全渠道售罄不断货，经销商拿着复购单排队。这一季的利润，够养团队一年。", fx: { cash: 12, traction: 8 } },
+    mid:     { text: "备货保守了，旺季中段断货两周。用户在社交媒体上问「哪里能买到」，你一边高兴一边心痛。", fx: { cash: 3, traction: 2, team: -2 } },
+    fail:    { text: "海运延误加清关卡壳，一半的货在旺季结束后才到港。仓库里堆着的库存，每一箱都在提醒你什么叫「时机」。", fx: { cash: -10, traction: -3 } },
+  },
+  {
+    id: "RG202", phase: 2, tag: "战略", title: "在迪拜设中东办公室",
+    scene: "邮件时差和文化隔阂让本地合作越来越吃力。你决定在迪拜设点，招本地团队——第一次做跨国管理。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "ring", minStage: 1,
+    success: { text: "本地团队三个月落地，签约速度翻倍，还帮你避开了两个差点踩中的文化雷区。本地化，原来是招对人。", fx: { network: 10, traction: 5, cash: -4 } },
+    mid:     { text: "办公室开了，招人比想象中难：好的候选人嫌你是小公司，来的人你又看不准。远程管理让你头大。", fx: { network: 4, cash: -5 } },
+    fail:    { text: "空降的办公室负责人和总部三观不合，半年烧掉预算两倍还签了个坑爹独家协议。你飞过去善后，谈解约谈到深夜。", fx: { cash: -8, team: -5 } },
+  },
+  {
+    id: "RG203", phase: 2, tag: "渠道", title: "攻下印尼与马来市场",
+    scene: "东南亚是全球穆斯林人口最多的区域，客单价低但体量惊人。你打包了本地化版本和分期付款方案，飞向雅加达。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "ring", minStage: 1,
+    success: { text: "和当地最大的电商平台谈成官方旗舰店，首月销量破万。你学会的第一句印尼语是「谢谢，真主保佑」。", fx: { traction: 9, cash: 6 } },
+    mid:     { text: "店开了，货动得慢。本地同事一句话点醒你：这里的用户要的不是更便宜的戒指，是分 12 期的戒指。", fx: { traction: 3, cash: -3 } },
+    fail:    { text: "低价仿品比你先一步铺满了本地市场，用你的宣传图卖三分之一的价。你的正品店铺评论区全是「买到假货」的差评。", fx: { cash: -5, traction: -4, network: -4 } },
+  },
+  {
+    id: "RG204", phase: 2, tag: "合规", title: "专利阻击华强北仿品",
+    scene: "1688 上出现了七家卖「同款智能戒指」的店，外观一模一样，价格三分之一。律师说：可以打，但要打持久战。",
+    checkAttr: "cash", S: 11, F: 6, ideaOnly: "ring",
+    success: { text: "外观专利加算法著作权组合拳，两个月下架了五家店。行业里传开了：这家公司不好惹。仿品少了，代理商信心回来了。", fx: { network: 5, traction: 4, cash: -2 } },
+    mid:     { text: "官司赢了两场，仿品换个马甲又上架。你意识到这是场消耗战，把「打假」列成了法务部的日常 KPI。", fx: { cash: -3 } },
+    fail:    { text: "诉讼拖了半年，仿品趁机横行，还有一家反诉你「恶意竞争」。海外用户开始分不清谁是正主。", fx: { cash: -5, traction: -5 } },
+  },
+  {
+    id: "RG205", phase: 2, tag: "产品", title: "研发二代：加入健康监测",
+    scene: "一代站稳了脚跟，用户最高频的许愿是健康功能：心率、血氧、睡眠。这意味着新传感器、新算法、新一轮认证。",
+    checkAttr: "team", S: 17, F: 10, ideaOnly: "ring", minStage: 1,
+    success: { text: "二代发布会上，「为斋戒期间的健康保驾护航」这句卖点让台下安静了两秒，然后掌声雷动。预售三天破了一代全年纪录。", fx: { traction: 8, team: 6, network: 4 } },
+    mid:     { text: "二代出来了，健康数据精度只能算及格。用户吐槽：「测得不准，但态度很诚恳。」你把算法团队又扩了一倍。", fx: { cash: -8, team: 3 } },
+    fail:    { text: "新传感器供应商出了质量事故，首批二代召回。你在道歉信里写「我们辜负了信任」，写完在办公室坐到天亮。", fx: { cash: -12, team: -6, health: -5 } },
+  },
+
+  /* ============ 阶段三 · 通用（第 4–10 年 · 每年） ============ */
+  {
+    id: "P301", phase: 3, tag: "资本", title: "启动上市筹备",
     scene: "券商、律所、审计师坐满了会议室，IPO 这台大机器一旦启动，就没有暂停键。",
-    checkAttr: "cash", S: 17, F: 10, ideaOnly: null,
-    success: { text: "辅导备案顺利推进，Pre-IPO 轮老股转让让早期员工第一次摸到了真金白银。全公司走路都带风。", fx: { cash: 25, network: 15, health: -8 } },
-    mid:     { text: "中介费烧着，问询函一轮接一轮，窗口期一延再延。上市从冲刺变成了马拉松。", fx: { cash: -10, health: -10 } },
-    fail:    { text: "关键财务指标不达标，项目组解散。消息传出当周，两家跟风的机构股东要求回购。你在办公室坐到天亮。", fx: { cash: -18, network: -8, health: -10 } },
+    checkAttr: "cash", S: 17, F: 10, ideaOnly: null, minStage: 3,
+    success: { text: "辅导备案顺利推进，Pre-IPO 轮老股转让让早期员工第一次摸到了真金白银。全公司走路都带风。", fx: { cash: 40, network: 12, health: -8 } },
+    mid:     { text: "中介费烧着，问询函一轮接一轮，窗口期一延再延。上市从冲刺变成了马拉松。", fx: { cash: -12, health: -10 } },
+    fail:    { text: "关键财务指标不达标，项目组解散。消息传出当周，两家跟风的机构股东要求回购。你在办公室坐到天亮。", fx: { cash: -20, network: -8, health: -10 } },
   },
   {
-    id: "C02", phase: 3, title: "并购一家小公司",
+    id: "P302", phase: 3, tag: "战略", title: "并购一家小公司",
     scene: "一家技术互补的小公司现金流断了，创始人主动找上门。价格很美好，但整合从来都是刀口舔血。",
-    checkAttr: "cash", S: 14, F: 8, ideaOnly: null,
-    success: { text: "并购后产品线补齐，对方团队完整留了下来，那位创始人成了你最能打的业务负责人。教科书级的整合。", fx: { team: 15, cash: -10, network: 8 } },
-    mid:     { text: "资产是买来了，人心没买来，核心成员陆续离开。你花钱买了一堆代码和一个教训。", fx: { cash: -12, team: 4 } },
-    fail:    { text: "接手后才发现对方账上有隐性债务，官司缠身。「尽调」两个字，从此刻进你的 DNA。", fx: { cash: -20, team: -8 } },
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: null, minStage: 2,
+    success: { text: "并购后产品线补齐，对方团队完整留了下来，那位创始人成了你最能打的业务负责人。教科书级的整合。", fx: { team: 12, traction: 8, cash: -15 } },
+    mid:     { text: "资产是买来了，人心没买来，核心成员陆续离开。你花钱买了一堆代码和一个教训。", fx: { cash: -15, team: 3 } },
+    fail:    { text: "接手后才发现对方账上有隐性债务，官司缠身。「尽调」两个字，从此刻进你的 DNA。", fx: { cash: -25, team: -8 } },
   },
   {
-    id: "C03", phase: 3, title: "布局第二增长曲线",
+    id: "P303", phase: 3, tag: "战略", title: "布局第二增长曲线",
     scene: "主业增速放缓，董事会开始问「然后呢」。你圈了一个新方向，准备内部孵化。",
     checkAttr: "team", S: 14, F: 8, ideaOnly: null,
-    success: { text: "新业务两年做到主业营收的三成，市场重新给了你「成长股」的估值。你在年会上说：「我们又是一家创业公司了。」", fx: { cash: 18, team: 8, network: 5 } },
-    mid:     { text: "新业务不温不火，养着一个「小而美」的团队。杀掉舍不得，加注不敢，典型的鸡肋。", fx: { cash: -10, team: 3 } },
-    fail:    { text: "新业务巨亏，还抽走了主业最精锐的人手，两头失血。你亲手关掉它那天，比裁任何人都难受。", fx: { cash: -15, team: -10 } },
+    success: { text: "新业务两年做到主业营收的三成，市场重新给了你「成长股」的估值。你在年会上说：「我们又是一家创业公司了。」", fx: { cash: 20, traction: 8, team: 5 } },
+    mid:     { text: "新业务不温不火，养着一个「小而美」的团队。杀掉舍不得，加注不敢，典型的鸡肋。", fx: { cash: -12, team: 2 } },
+    fail:    { text: "新业务巨亏，还抽走了主业最精锐的人手，两头失血。你亲手关掉它那天，比裁任何人都难受。", fx: { cash: -18, team: -10 } },
   },
   {
-    id: "C04", phase: 3, title: "放权培养接班人",
+    id: "P304", phase: 3, tag: "团队", title: "放权培养接班人",
     scene: "你意识到公司离了你就转不动——这不是荣耀，是风险。你挑了两位高管进入「接班人计划」。",
     checkAttr: "team", S: 11, F: 6, ideaOnly: null,
-    success: { text: "一年后你休了创业以来第一个两周长假，回来发现公司运转得比你在时还好。你百感交集，然后释然。", fx: { team: 15, health: 10 } },
-    mid:     { text: "权是放了，事还是找你。你从「什么都管」变成了「什么都要拍板」，会更多了。", fx: { team: 4, health: 3 } },
+    success: { text: "一年后你休了创业以来第一个两周长假，回来发现公司运转得比你在时还好。你百感交集，然后释然。", fx: { team: 14, health: 10 } },
+    mid:     { text: "权是放了，事还是找你。你从「什么都管」变成了「什么都要拍板」，会更多了。", fx: { team: 3, health: 3 } },
     fail:    { text: "两位候选人斗成了两个派系，你不得不出面收拾残局，权力重新收回。「培养接班人」暂时成了公司禁语。", fx: { team: -12, health: -6 } },
   },
   {
-    id: "C05", phase: 3, title: "做行业导师与 LP",
+    id: "P305", phase: 3, tag: "人脉", title: "做行业导师与 LP",
     scene: "你开始受邀当创业营导师、做基金 LP，把踩过的坑讲给年轻人听。当然，也是在编织自己的下一张网。",
     checkAttr: "network", S: 8, F: 4, ideaOnly: null,
-    success: { text: "你辅导的一个项目成了黑马，你的早期投资翻了几倍，「导师」的名头也越来越值钱。", fx: { network: 15, cash: 8 } },
-    mid:     { text: "分享做了不少，掌声也有，但飞来飞去的行程表让你怀疑自己到底是创始人还是空中飞人。", fx: { network: 6, health: -4 } },
-    fail:    { text: "你 LP 的那支基金业绩扑街，被投项目还出了负面，连带你也被点名。「看走眼」这事，导师也不能免俗。", fx: { network: -6, cash: -8 } },
+    success: { text: "你辅导的一个项目成了黑马，你的早期投资翻了几倍，「导师」的名头也越来越值钱。", fx: { network: 12, cash: 8 } },
+    mid:     { text: "分享做了不少，掌声也有，但飞来飞去的行程表让你怀疑自己到底是创始人还是空中飞人。", fx: { network: 5, health: -4 } },
+    fail:    { text: "你 LP 的那支基金业绩扑街，被投项目还出了负面，连带你也被点名。「看走眼」这事，导师也不能免俗。", fx: { network: -6, cash: -10 } },
   },
   {
-    id: "C06", phase: 3, title: "出书立人设",
-    scene: "出版社编辑找上门：「您的故事值得一本书。」你翻了翻这十年的日历，确实，素材是不缺的。",
+    id: "P306", phase: 3, tag: "人脉", title: "出书立人设",
+    scene: "出版社编辑找上门：「您的故事值得一本书。」你翻了翻这几年的日历，确实，素材是不缺的。",
     checkAttr: "network", S: 11, F: 6, ideaOnly: null,
-    success: { text: "《熬过低谷》上市三个月加印四次，机场书店 C 位陈列。写作的过程像一场自我治疗，你和很多往事和解了。", fx: { network: 12, team: 5, health: 4 } },
-    mid:     { text: "书出了，卖得一般，公司前台放了一摞用来送客户。至少，你妈终于搞懂了你是做什么的。", fx: { network: 4, health: -4 } },
+    success: { text: "《熬过低谷》上市三个月加印四次，机场书店 C 位陈列。写作的过程像一场自我治疗，你和很多往事和解了。", fx: { network: 10, traction: 4, health: 4 } },
+    mid:     { text: "书出了，卖得一般，公司前台放了一摞用来送客户。至少，你妈终于搞懂了你是做什么的。", fx: { network: 3, health: -4 } },
     fail:    { text: "书里一段关于前合伙人的描写引发对方公开撕破脸，旧事全被翻出来。你学会了：回忆录的「回忆」二字，重于千钧。", fx: { network: -8, health: -5 } },
   },
   {
-    id: "C07", phase: 3, title: "退居半线调理身体",
-    scene: "体检报告上的箭头一年比一年多。你决定今年把日常经营交给 CEO 班子，自己只管战略——顺便把身体找回来。",
+    id: "P307", phase: 3, tag: "个人", title: "退居半线调理身体",
+    scene: "体检报告上的箭头一年比一年多。你决定今年把日常经营交给管理层，自己只管战略——顺便把身体找回来。",
     checkAttr: "health", S: 8, F: 4, ideaOnly: null,
-    success: { text: "一年后你瘦了十斤，指标全线好转，看问题反而比在一线时更清楚。你悟了：健康才是创始人最硬的资产。", fx: { health: 18, team: 5 } },
+    success: { text: "一年后你瘦了十斤，指标全线好转，看问题反而比在一线时更清楚。你悟了：健康才是创始人最硬的资产。", fx: { health: 16, team: 4 } },
     mid:     { text: "身体是好些了，但几个重要局没到场，圈子里开始有「他是不是退了」的传言。", fx: { health: 8, network: -4 } },
-    fail:    { text: "你前脚退，管理层后脚斗，一个季度业绩滑坡，你不得不重新出山。养生计划，卒。", fx: { health: 4, team: -8, cash: -8 } },
+    fail:    { text: "你前脚退，管理层后脚斗，业绩滑坡，你不得不重新出山。养生计划，卒。", fx: { health: 4, team: -8, cash: -10 } },
   },
   {
-    id: "C08", phase: 3, title: "降本增效大裁员",
+    id: "P308", phase: 3, tag: "团队", title: "降本增效大裁员",
     scene: "行业寒冬，账上现金要按「月」算了。顾问给的方案是裁员 30%。你盯着花名册看了整整一晚。",
     checkAttr: "team", S: 8, F: 4, ideaOnly: null,
-    success: { text: "方案执行得快、准、体面，补偿一分不少。公司瘦身后当季转正现金流，活下来的人都明白这是为什么。", fx: { cash: 18, team: -6, health: -5 } },
-    mid:     { text: "裁是裁完了，赔偿谈得磕磕绊绊，留下来的人一边干活一边刷招聘软件。", fx: { cash: 10, team: -10 } },
-    fail:    { text: "名单泄露、仲裁、媒体报道接踵而至，「毕业」「优化」的黑话被挂着你的公司名嘲讽。省下的钱，赔进了名声。", fx: { cash: 5, team: -15, network: -8 } },
+    success: { text: "方案执行得快、准、体面，补偿一分不少。公司瘦身后当季转正现金流，活下来的人都明白这是为什么。", fx: { cash: 15, team: -5, health: -4 } },
+    mid:     { text: "裁是裁完了，赔偿谈得磕磕绊绊，留下来的人一边干活一边刷招聘软件。", fx: { cash: 8, team: -9 } },
+    fail:    { text: "名单泄露、仲裁、媒体报道接踵而至，「毕业」「优化」的黑话被挂着你的公司名嘲讽。省下的钱，赔进了名声。", fx: { cash: 4, team: -14, network: -8 } },
   },
   {
-    id: "C09", phase: 3, title: "豪赌下一代技术",
+    id: "P309", phase: 3, tag: "战略", title: "豪赌下一代技术",
     scene: "一项新技术可能颠覆你所在的行业。all-in 可能改天换地，也可能万劫不复。牌桌就在眼前，筹码在你手里。",
-    checkAttr: "cash", S: 17, F: 10, ideaOnly: null,
-    success: { text: "三年后回头看，你是全行业唯一提前上车的人。媒体叫你「远见者」，只有你知道当时手抖得多厉害。", fx: { cash: 25, network: 12, team: 8 } },
-    mid:     { text: "方向对了，时机早了。技术储备是攒下了，但商业化遥遥无期，每年烧钱如烧纸。", fx: { cash: -15, team: 5 } },
-    fail:    { text: "赌错了路线，三年投入打了水漂。董事会上没人说话，那种安静比任何指责都响。", fx: { cash: -25, team: -10, health: -8 } },
+    checkAttr: "cash", S: 17, F: 10, ideaOnly: null, minStage: 2,
+    success: { text: "三年后回头看，你是全行业唯一提前上车的人。媒体叫你「远见者」，只有你知道当时手抖得多厉害。", fx: { cash: 30, traction: 10, team: 6 } },
+    mid:     { text: "方向对了，时机早了。技术储备是攒下了，但商业化遥遥无期，每年烧钱如烧纸。", fx: { cash: -20, team: 4 } },
+    fail:    { text: "赌错了路线，三年投入打了水漂。董事会上没人说话，那种安静比任何指责都响。", fx: { cash: -30, team: -8, health: -8 } },
   },
   {
-    id: "C10", phase: 3, title: "【面试猫】大模型价格战跟不跟",
-    scene: "巨头把大模型 API 价格打到了骨折，友商纷纷跟进「免费」。你的付费模式一夜之间像个笑话。",
-    checkAttr: "cash", S: 14, F: 8, ideaOnly: "ai",
-    success: { text: "你不跟，反手推出企业级私有化方案，专收「用不了免费货」的大客户。价格战的血海里，你在岸上卖救生圈。", fx: { cash: 18, network: 8 } },
-    mid:     { text: "半跟半不跟，免费额度放开一些，付费功能守住底线。用户没流失多少，但增长故事讲不动了。", fx: { cash: -10, team: -4 } },
-    fail:    { text: "你咬牙跟了免费，指望「先圈住用户」。半年后用户是多了，钱包空了，巨头的免费还在继续——人家烧的是零花钱，你烧的是命。", fx: { cash: -20, team: -8 } },
+    id: "P310", phase: 3, tag: "数据", title: "自建数据与算力基础设施",
+    scene: "云账单一年比一年离谱，数据主权问题也被大客户反复追问。CTO 提交了一份自建 IDC 的方案，投入是九位数起步。",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: null, minStage: 3,
+    success: { text: "自建基础设施两年回本，成本降四成，大客户的安全审计一次通过。技术底座，成了你签单时最硬的筹码。", fx: { cash: 10, team: 6, traction: 4 } },
+    mid:     { text: "机房建成了，迁移比预想的痛苦十倍，双跑期间成本不降反升。CTO 说这叫「黎明前的黑暗」，你希望他说得对。", fx: { cash: -15, team: 3 } },
+    fail:    { text: "建到一半云厂商大降价，自建的成本优势瞬间蒸发。这笔沉没成本在财报里躺了三年，每次开会都有人提。", fx: { cash: -22, team: -4 } },
+  },
+
+  /* ============ 阶段三 · Offer 菩萨专属 ============ */
+  {
+    id: "AI301", phase: 3, tag: "战略", title: "all-in 通用求职 Agent",
+    scene: "从「面试教练」到「打工人的 AI 分身」：帮用户找岗、投递、面试、谈薪一条龙。做成了是平台，做不成是烈士。",
+    checkAttr: "team", S: 17, F: 10, ideaOnly: "ai", minStage: 2,
+    success: { text: "Agent 上线一年撮合了十万个 offer，招聘平台从封杀你到求合作。行业报告开始用「就业基础设施」形容你。", fx: { traction: 12, cash: 20, network: 6 } },
+    mid:     { text: "Agent 能干活，但「谈薪」环节翻车不断——AI 给用户争取的薪资，比用户自己谈的还低。你限制了它的权限，故事讲小了。", fx: { cash: -15, traction: 3 } },
+    fail:    { text: "Agent 大规模投递引发行业反弹，三大招聘平台联合封禁，监管约谈。转型失败，主业元气大伤。", fx: { cash: -25, team: -8, traction: -5 } },
   },
   {
-    id: "C11", phase: 3, title: "【熬夜水】铺十万家线下终端",
-    scene: "线上流量见顶，你决定发起「万店计划」，把熬夜水铺进每一个便利店、每一台自动售货机。",
-    checkAttr: "cash", S: 14, F: 8, ideaOnly: "brand",
-    success: { text: "两年铺进十二万个终端，线下营收反超线上。行业报告里，你的品牌第一次被写进「头部」那一栏。", fx: { cash: 20, network: 10, team: 5 } },
-    mid:     { text: "铺是铺出去了，动销参差不齐，一半终端在赚钱，另一半在积灰。你天天盯着周转数据心惊肉跳。", fx: { cash: -10, team: 4 } },
-    fail:    { text: "经销商压货爆仓、窜货乱价，价格体系崩了。你花了两年建的渠道，塌方只用了两个季度。", fx: { cash: -22, team: -6 } },
+    id: "AI302", phase: 3, tag: "渠道", title: "私有化部署收割大客户",
+    scene: "巨头把 API 价格打到骨折，你反手推出企业级私有化方案，专收「用不了免费货」的大客户——价格战的血海里卖救生圈。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "ai", minStage: 2,
+    success: { text: "国企、银行、高校排着队签单，客单价七位数起。销售总监在年会上举杯：「感谢价格战，把客户都赶到了我们这边。」", fx: { cash: 20, traction: 6 } },
+    mid:     { text: "单子签了几个，交付成本高得吓人：每个客户都要驻场三个月。赚的是钱，卖的是人。", fx: { cash: 5, team: -4 } },
+    fail:    { text: "投标连输三场，都败给了巨头的「免费送」。你终于明白：人家烧的是零花钱，你守的是命根子。", fx: { cash: -10, traction: -4 } },
   },
   {
-    id: "C12", phase: 3, title: "【芯片检测仪】国产替代大单投标",
-    scene: "国产替代浪潮下，头部晶圆厂放出设备采购大标。中标就是「里程碑订单」，输了就再等三年。",
-    checkAttr: "team", S: 14, F: 8, ideaOnly: "hardtech",
-    success: { text: "设备通过全部验证，正式进入头部厂供应链。签约那天，你把十年前实验室的那台原型机照片设成了手机壁纸。", fx: { cash: 25, network: 15, team: 8 } },
-    mid:     { text: "拿到「小批量试用」订单，离批量采购还差最后一次验证。团队进驻客户产线，一驻就是一年。", fx: { cash: 8, health: -8 } },
-    fail:    { text: "验证环节一项指标反复不过，最终惜败给老牌外企。你在复盘会上说：「差的这 0.3%，就是我们接下来三年的全部工作。」", fx: { cash: -15, team: -8, health: -8 } },
+    id: "AI303", phase: 3, tag: "战略", title: "出海全球招聘市场",
+    scene: "国内卷到头了，你盯上了全球市场：东南亚的工程师、欧洲的留学生、北美的裁员潮——焦虑是全球通用语言。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "ai", minStage: 2,
+    success: { text: "英文版上线半年拿下三个市场，海外收入占比冲到四成。你在全员会上说：「打工人的痛，全世界都一样。」", fx: { traction: 10, cash: 10 } },
+    mid:     { text: "产品出去了，本地化只做了个语言翻译。北美用户反馈：你们的 AI 面试官「太卷了，像个 PUA 大师」。", fx: { cash: -10, traction: 3 } },
+    fail:    { text: "数据合规没做扎实，在欧洲吃了 GDPR 罚单，业务紧急下线整改。出海第一课，学费七位数。", fx: { cash: -15, health: -8 } },
+  },
+  {
+    id: "AI304", phase: 3, tag: "战略", title: "开源核心模型换生态",
+    scene: "闭源守不住技术差距，你决定把垂直模型开源，赌一个开发者生态：模型免费，服务收费。董事会吵成一团。",
+    checkAttr: "team", S: 14, F: 8, ideaOnly: "ai", minStage: 2,
+    success: { text: "开源模型登顶社区热榜，三百个开发者基于它做应用，企业服务订单反而翻倍。你赌赢了：生态才是护城河。", fx: { network: 12, traction: 8, team: 5 } },
+    mid:     { text: "star 涨得飞快，钱包没什么动静。白嫖的人千千万，付费的客户两三家。开源信仰，暂时不能当饭吃。", fx: { traction: 2, team: -3 } },
+    fail:    { text: "开源三个月后，竞品拿你的模型微调出了个更好的版本，还比你先商业化。你为行业做了慈善。", fx: { traction: -5, team: -6 } },
+  },
+
+  /* ============ 阶段三 · 熬夜水专属 ============ */
+  {
+    id: "BR301", phase: 3, tag: "渠道", title: "发起「万店计划」",
+    scene: "线上流量见顶，你决定把熬夜水铺进每一个便利店、每一台自动售货机。地面部队，重新集结。",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: "brand", minStage: 2,
+    success: { text: "两年铺进十二万个终端，线下营收反超线上。行业报告里，你的品牌第一次被写进「头部」那一栏。", fx: { cash: 18, traction: 10, team: 4 } },
+    mid:     { text: "铺是铺出去了，动销参差不齐，一半终端在赚钱，另一半在积灰。你天天盯着周转数据心惊肉跳。", fx: { cash: -12, traction: 3 } },
+    fail:    { text: "经销商压货爆仓、窜货乱价，价格体系崩了。你花了两年建的渠道，塌方只用了两个季度。", fx: { cash: -25, team: -6 } },
+  },
+  {
+    id: "BR302", phase: 3, tag: "战略", title: "货架出海东南亚",
+    scene: "国内饮料内卷到 3 元时代，你把目光投向了同样熬夜成瘾的东南亚：那里的便利店货架，还没有中国品牌的位置。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "brand", minStage: 2,
+    success: { text: "泰国和越南首年铺进两万家门店，本地化的「椰香熬夜水」卖成了断货王。东南亚的夜，也是你的夜。", fx: { traction: 9, cash: 10 } },
+    mid:     { text: "货出去了，动销一般。你发现当地人熬夜靠的是三合一咖啡，五块钱一大包——你的对手比想象中便宜得多。", fx: { cash: -8, traction: 2 } },
+    fail:    { text: "合作的进口商资金链断裂，一整柜货被海关扣在港口，解押流程走了四个月。热带的教训，一点不比国内便宜。", fx: { cash: -12, network: -4 } },
+  },
+  {
+    id: "BR303", phase: 3, tag: "战略", title: "收购老牌凉茶厂",
+    scene: "一家有三十年历史的凉茶厂经营不善挂牌出售：全套产线、老字号商标、还有几百个县城渠道。买，还是不买？",
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: "brand", minStage: 2,
+    success: { text: "收购后你用老字号推「养生子品牌」，县城渠道直接复用。年轻人买你的潮，中老年买你的老——通吃。", fx: { traction: 7, team: 8, cash: -15 } },
+    mid:     { text: "厂买下来了，才发现设备老化比报表上严重，技改又投了一笔。老字号的招牌是真的，坑也是真的。", fx: { cash: -15, traction: 2 } },
+    fail:    { text: "交割后冒出一堆历史债务和劳资纠纷，老员工拉横幅上了本地新闻。你花钱买了一个「维稳项目」。", fx: { cash: -22, team: -6 } },
+  },
+  {
+    id: "BR304", phase: 3, tag: "增长", title: "品牌年轻化自救",
+    scene: "创立七年，当年的 95 后用户成了 30+，新一代年轻人觉得你「爹味」。市场部提案：全面焕新，从 logo 到代言人。",
+    checkAttr: "network", S: 11, F: 6, ideaOnly: "brand",
+    success: { text: "新代言人官宣当天涨粉五十万，联名新包装被做成手机壁纸。老品牌重新变成了「显眼包」，你松了口气。", fx: { traction: 8, network: 5, cash: -5 } },
+    mid:     { text: "焕新做了，声量有了，销量没跟上。年轻人点赞你的营销，然后下单了三块钱的冰红茶。", fx: { cash: -8, traction: 2 } },
+    fail:    { text: "新 logo 被全网群嘲「五毛钱设计」，老用户觉得背叛，新用户无感。三个月后你悄悄换回了旧包装。", fx: { traction: -6, network: -5, cash: -5 } },
+  },
+
+  /* ============ 阶段三 · 新月环专属 ============ */
+  {
+    id: "RG301", phase: 3, tag: "战略", title: "打造穆斯林生活方式生态",
+    scene: "一枚戒指只是入口。App 里用户在许愿：斋月健康管理、朝觐行程助手、家庭共享圈。你决定从硬件公司变成生态公司。",
+    checkAttr: "team", S: 14, F: 8, ideaOnly: "ring", minStage: 2,
+    success: { text: "生态订阅上线一年付费率破三成，用户日均打开五次。硬件带软件、软件养硬件的飞轮，真的转起来了。", fx: { traction: 12, network: 6, cash: 8 } },
+    mid:     { text: "功能上了一堆，活跃的还是那几个老功能。你砍掉一半「愿景型」项目，重新聚焦——生态不是堆功能。", fx: { cash: -10, traction: 3 } },
+    fail:    { text: "盲目扩张的服务线拖垮了核心体验，App 评分从 4.8 掉到 3.9。你花了一年时间做减法，才把口碑救回来。", fx: { cash: -15, team: -8 } },
+  },
+  {
+    id: "RG302", phase: 3, tag: "资本", title: "沙特主权基金的橄榄枝",
+    scene: "一封来自利雅得的邮件：主权基金愿意领投，条件是把区域总部设到沙特，并承诺本地化生产。钱很多，条件很重。",
+    checkAttr: "network", S: 17, F: 10, ideaOnly: "ring", minStage: 3,
+    success: { text: "谈判八个月，你签下了改变公司命运的一笔投资，还拿到了政府采购的入场券。签约照片里，你笑得像第一次融资那天。", fx: { cash: 60, network: 10 } },
+    mid:     { text: "条款拉锯战旷日持久，对赌和控制权卡住了。最后双方保持「战略沟通」——中东的耐心，你算是领教了。", fx: { network: 4, health: -6 } },
+    fail:    { text: "谈判后期杀出一家美国竞品，条件比你灵活。基金转投了他们，你飞了十一趟利雅得，换来一句「保持联系」。", fx: { network: -8, health: -8 } },
+  },
+  {
+    id: "RG303", phase: 3, tag: "合规", title: "冲击医疗级健康认证",
+    scene: "健康监测做到第三年，用户开始拿它管理慢病。要么停留在「仅供参考」，要么砸钱冲医疗级认证——门槛高到劝退。",
+    checkAttr: "team", S: 14, F: 8, ideaOnly: "ring", minStage: 2,
+    success: { text: "两年三轮临床验证，认证下来那天，你们成了品类里唯一的「医疗级」。保险公司主动上门谈合作。", fx: { traction: 8, network: 8, cash: -8 } },
+    mid:     { text: "认证流程走了一半，标准更新，部分测试重做。烧钱换门票的游戏，你咬着牙继续排队。", fx: { cash: -10, team: 2 } },
+    fail:    { text: "临床数据差了一口气，认证被拒。更疼的是，宣传物料里一句擦边的「医疗级」表述吃了监管警告。", fx: { cash: -12, traction: -3 } },
+  },
+  {
+    id: "RG304", phase: 3, tag: "战略", title: "副牌进军大众戒指市场",
+    scene: "智能戒指突然成了硅谷新风口，巨头纷纷入场。你手握全球最大的戒指产能之一——要不要做个大众副牌分一杯羹？",
+    checkAttr: "team", S: 14, F: 8, ideaOnly: "ring", minStage: 2,
+    success: { text: "副牌借着风口起飞，产能优势让你的定价比硅谷同行低四成。主牌深耕信仰，副牌收割风口——两条腿都硬。", fx: { traction: 10, cash: 12 } },
+    mid:     { text: "副牌卖得平平：大众市场认品牌不认产能，你的名字在那个货架上没人听过。烧了一年，你把副牌收缩成了 ODM 业务。", fx: { cash: -10, traction: 2 } },
+    fail:    { text: "副牌分散了研发火力，主牌二代跳票半年，核心用户流失。你砍掉副牌那天在全员信里写：「不是所有热闹都该凑。」", fx: { cash: -18, traction: -6, team: -5 } },
   },
 ];
 
-// 百搭卡（W01–W12 任意阶段，W13–W15 限阶段一，W16–W18 限阶段二/三）
+// 百搭卡
 const WILDCARDS = [
   {
-    id: "W01", phase: null, title: "应用被安卓商店下架",
+    id: "W01", phase: null, ideaOnly: "ai", title: "应用被安卓商店下架",
     scene: "你的 App 突然被主流安卓商店下架，理由是「权限描述不合规」。用户增长曲线当场躺平。",
     options: [
-      { label: "连夜整改并托关系申诉", text: "三天后恢复上架，你还因祸得福认识了商店的对接经理，以后有事能找到人了。", fx: { cash: -8, network: 5 } },
-      { label: "躺平等系统自动复审", text: "两周后自动恢复，但错过了投放高峰，运营团队眼睁睁看着 KPI 泡汤，怨气+1。", fx: { team: -6 } },
+      { label: "连夜整改并托关系申诉", text: "三天后恢复上架，你还因祸得福认识了商店的对接经理，以后有事能找到人了。", fx: { network: 5, traction: -1 } },
+      { label: "躺平等系统自动复审", text: "两周后自动恢复，但错过了投放高峰，运营团队眼睁睁看着 KPI 泡汤，怨气+1。", fx: { traction: -4, team: -3 } },
     ],
   },
   {
-    id: "W02", phase: null, title: "投资人主动引荐大客户",
+    id: "W02", phase: null, ideaOnly: null, title: "投资人主动引荐大客户",
     scene: "一位只见过一面的投资人突然发来微信：「我一个老同学在找你们这种服务，拉个群？」",
     options: [
-      { label: "立刻拉群，全力跟进", text: "单子谈成了，投资人也对你「执行力强」印象深刻。天上真的会掉馅饼，前提是你接得住。", fx: { cash: 12, network: 8 } },
+      { label: "立刻拉群，全力跟进", text: "单子谈成了，投资人也对你「执行力强」印象深刻。天上真的会掉馅饼，前提是你接得住。", fx: { cash: 4, traction: 4, network: 5 } },
       { label: "委婉推掉，专注当前节奏", text: "你怕精力分散，礼貌地说「下个季度再约」。对方回了个「好的」，此后再无下文。", fx: {} },
     ],
   },
   {
-    id: "W03", phase: null, title: "竞品创始人被曝丑闻",
+    id: "W03", phase: null, ideaOnly: null, title: "竞品创始人被曝丑闻",
     scene: "你最大的竞品创始人被曝出税务问题，全网吃瓜，客户人心惶惶。",
     options: [
-      { label: "趁势抢客户，全员出击", text: "抢来一批客户，但圈内有人觉得你「吃相难看」。生意场上，体面和增长常常只能选一个。", fx: { cash: 10, network: -5 } },
+      { label: "趁势抢客户，全员出击", text: "抢来一批客户，但圈内有人觉得你「吃相难看」。生意场上，体面和增长常常只能选一个。", fx: { traction: 6, network: -5 } },
       { label: "保持沉默，绝不落井下石", text: "你在采访中说「我们只关注自己的用户」。风波过后，连对方的员工都对你产生了好感。", fx: { network: 8 } },
     ],
   },
   {
-    id: "W04", phase: null, title: "核心员工被大厂三倍薪挖角",
+    id: "W04", phase: null, ideaOnly: null, title: "核心员工被大厂三倍薪挖角",
     scene: "你最能打的那位工程师收到大厂 offer，薪资三倍。他拿着 offer 来找你，眼神复杂。",
     options: [
-      { label: "咬牙给期权加码留人", text: "他留下了，并且把这次谈话讲给了团队听。大家忽然相信，跟着你干真的有奔头。", fx: { cash: -10, team: 10 } },
-      { label: "祝福放行，好聚好散", text: "欢送会上他哭了。半年后他在大厂内部当了你产品的「编外布道师」，介绍来两个合作机会。", fx: { team: -10, network: 5 } },
+      { label: "咬牙给期权加码留人", text: "他留下了，并且把这次谈话讲给了团队听。大家忽然相信，跟着你干真的有奔头。", fx: { team: 10 } },
+      { label: "祝福放行，好聚好散", text: "欢送会上他哭了。半年后他在大厂内部当了你产品的「编外布道师」，介绍来两个合作机会。", fx: { team: -8, network: 5 } },
     ],
   },
   {
-    id: "W05", phase: null, title: "办公室隔壁着火",
+    id: "W05", phase: null, ideaOnly: null, title: "办公室隔壁着火",
     scene: "凌晨两点，隔壁公司电路起火殃及你的办公室，服务器和三台工作站泡了消防水。",
     options: [
-      { label: "连夜抢救加急恢复", text: "数据保住了，业务只停了一天。你在朋友圈发了张凌晨四点的照片，配文：创业者的浪漫。", fx: { cash: -8, health: -6 } },
-      { label: "顺势放全员三天假", text: "反正短期干不了活，不如全员带薪休假。大家回来时元气满满，办公室也焕然一新。", fx: { team: 8, cash: -5 } },
+      { label: "连夜抢救加急恢复", text: "数据保住了，业务只停了一天。你在朋友圈发了张凌晨四点的照片，配文：创业者的浪漫。", fx: { health: -7, team: 2 } },
+      { label: "顺势放全员三天假", text: "反正短期干不了活，不如全员带薪休假。大家回来时元气满满，办公室也焕然一新。", fx: { team: 8, traction: -2 } },
     ],
   },
   {
-    id: "W06", phase: null, title: "你的往期言论被翻出来断章取义",
+    id: "W06", phase: null, ideaOnly: null, title: "你的往期言论被翻出来断章取义",
     scene: "三年前你在某场分享里的一句玩笑话被剪成 15 秒短视频，冲上热搜，评论区已经开始编造你的「黑历史」。",
     options: [
-      { label: "发长文逐条澄清", text: "写到凌晨三点，好在完整视频还在，澄清获得主流媒体转发。你涨了一批「路转粉」。", fx: { health: -8, network: 5 } },
-      { label: "冷处理，让子弹飞", text: "热搜三天后自然消退，但「那个说过 XX 的创始人」的标签，在一部分人心里留下了。", fx: { network: -8 } },
+      { label: "发长文逐条澄清", text: "写到凌晨三点，好在完整视频还在，澄清获得主流媒体转发。你涨了一批「路转粉」。", fx: { health: -6, network: 5 } },
+      { label: "冷处理，让子弹飞", text: "热搜三天后自然消退，但「那个说过 XX 的创始人」的标签，在一部分人心里留下了。", fx: { network: -7, traction: -2 } },
     ],
   },
   {
-    id: "W07", phase: null, title: "爸妈来公司「视察」",
+    id: "W07", phase: null, ideaOnly: null, title: "爸妈来公司「视察」",
     scene: "爸妈从老家来看你，顺便第一次参观你的公司。你妈带了一箱土鸡蛋，你爸全程背着手像领导巡视。",
     options: [
       { label: "放下工作陪两天", text: "你带他们吃了饭、逛了景点。你爸临走时说：「比在老家考公务员强。」这句话你能记一辈子。", fx: { health: 10, team: 3 } },
@@ -706,55 +1055,55 @@ const WILDCARDS = [
     ],
   },
   {
-    id: "W08", phase: null, title: "房东突然涨租 50%",
+    id: "W08", phase: null, ideaOnly: null, title: "房东突然涨租 50%",
     scene: "写字楼租约到期，房东看你们人越来越多，狮子大开口涨租一半。",
     options: [
-      { label: "搬去更远的产业园", text: "省下大笔租金还拿了园区补贴，但通勤变长，两个住得远的同事默默提了离职。", fx: { cash: 8, team: -6 } },
-      { label: "认了，续约原址", text: "钱包受伤，但团队通勤和客户到访都方便。你安慰自己：稳定也是一种生产力。", fx: { cash: -10 } },
+      { label: "搬去更远的产业园", text: "省下大笔租金还拿了园区补贴，但通勤变长，两个住得远的同事默默提了离职。", fx: { cash: 2, team: -5 } },
+      { label: "认了，续约原址", text: "钱包受伤，但团队通勤和客户到访都方便。你安慰自己：稳定也是一种生产力。", fx: { cash: -2 } },
     ],
   },
   {
-    id: "W09", phase: null, title: "老同学请你「帮个小忙」",
+    id: "W09", phase: null, ideaOnly: null, title: "老同学请你「帮个小忙」",
     scene: "多年未联系的老同学突然出现，请你给他的项目「站个台、挂个顾问」，还暗示能给点「顾问费」。项目细节他说得含糊。",
     options: [
       { label: "婉拒：无功不受禄", text: "你请他吃了顿饭，但没答应挂名。半年后他的项目暴雷上了新闻，你后背发凉。", fx: {} },
-      { label: "抹不开面子，答应了", text: "顾问费到账了，但项目后来出了纠纷，你的名字被牵连进去，解释了整整一年。", fx: { cash: 8, network: -10 } },
+      { label: "抹不开面子，答应了", text: "顾问费到账了，但项目后来出了纠纷，你的名字被牵连进去，解释了整整一年。", fx: { cash: 2, network: -10 } },
     ],
   },
   {
-    id: "W10", phase: null, title: "你入选「30 位 30 岁以下创业者」榜单",
+    id: "W10", phase: null, ideaOnly: null, title: "你入选「30 位 30 岁以下创业者」榜单",
     scene: "一家知名商业媒体把你评进了年度青年创业者榜单，拍摄和采访邀约随之而来。",
     options: [
-      { label: "高调接受，全程配合", text: "颁奖礼、专访、圆桌一个不落，你的知名度上了个台阶，只是那个月几乎没睡过整觉。", fx: { network: 12, health: -5 } },
+      { label: "高调接受，全程配合", text: "颁奖礼、专访、圆桌一个不落，你的知名度上了个台阶，只是那个月几乎没睡过整觉。", fx: { network: 12, traction: 3, health: -5 } },
       { label: "低调领奖，婉拒曝光", text: "你只去了颁奖礼，其余全推了。名声是虚的，产品和睡眠是实的。", fx: { network: 4, health: 4 } },
     ],
   },
   {
-    id: "W11", phase: null, title: "行业新规征求意见稿发布",
+    id: "W11", phase: null, ideaOnly: null, title: "行业新规征求意见稿发布",
     scene: "监管部门发布行业新规征求意见稿，其中两条直接影响你的核心业务，圈内一片哀嚎。",
     options: [
-      { label: "组织团队连夜研究并提交意见", text: "你们提交的三条建议有一条被采纳，你还因此进了行业协会的专家名单。危转成了机。", fx: { team: -4, network: 10 } },
-      { label: "观望，等正式稿再说", text: "正式稿落地后你被动整改，合规成本比早做准备的同行高了一截。", fx: { cash: -8 } },
+      { label: "组织团队连夜研究并提交意见", text: "你们提交的三条建议有一条被采纳，你还因此进了行业协会的专家名单。危转成了机。", fx: { team: -3, network: 10 } },
+      { label: "观望，等正式稿再说", text: "正式稿落地后你被动整改，合规成本比早做准备的同行高了一截。", fx: { cash: -3, traction: -3 } },
     ],
   },
   {
-    id: "W12", phase: null, title: "团队里走出一对新人",
+    id: "W12", phase: null, ideaOnly: null, title: "团队里走出一对新人",
     scene: "公司的两位早期员工宣布结婚——他们是在你的办公室加班时看对眼的。婚礼请柬上写着「感谢老板牵线」。",
     options: [
-      { label: "包个大红包，全员放假半天", text: "婚礼上你被起哄致辞，讲到公司第一天的故事时台下哭倒一片。这家公司有了家的味道。", fx: { cash: -5, team: 10 } },
+      { label: "包个大红包，全员放假半天", text: "婚礼上你被起哄致辞，讲到公司第一天的故事时台下哭倒一片。这家公司有了家的味道。", fx: { team: 10, health: 3 } },
       { label: "心意到了就行", text: "你随了个普通红包，发了条祝福朋友圈。挺好，但总觉得少了点什么。", fx: { team: 3 } },
     ],
   },
   {
-    id: "W13", phase: [1], title: "服务器账单爆炸",
-    scene: "月底云服务账单比预算高了 8 倍——有个循环调用的 bug 跑了整整一个月，没人发现。",
+    id: "W13", phase: [1], ideaOnly: "ai", title: "API 账单爆炸",
+    scene: "月底 API 账单比预算高了 8 倍——有个循环调用的 bug 跑了整整一个月，没人发现。",
     options: [
-      { label: "找云厂商卖惨谈减免", text: "客户经理帮你申请到了部分减免，还送了一年的创业扶持额度。脸皮厚，吃个够。", fx: { network: 3, cash: -5 } },
-      { label: "认栽，全额支付", text: "你把账单打印出来贴在墙上，下面写着：「这是我们交过最贵的学费。」从此上线必过 code review。", fx: { cash: -12 } },
+      { label: "找服务商卖惨谈减免", text: "客户经理帮你申请到了部分减免，还送了一年的创业扶持额度。脸皮厚，吃个够。", fx: { network: 3, cash: -1 } },
+      { label: "认栽，全额支付", text: "你把账单打印出来贴在墙上，下面写着：「这是我们交过最贵的学费。」从此上线必过 code review。", fx: { cash: -3 } },
     ],
   },
   {
-    id: "W14", phase: [1], title: "联合创始人的女朋友来「帮忙」",
+    id: "W14", phase: [1], ideaOnly: null, title: "联合创始人的女朋友来「帮忙」",
     scene: "联创把他女朋友招进公司「帮忙管行政」，没和你商量。她第一周就改了报销制度，第二周开始点评产品方向。",
     options: [
       { label: "找联创摊牌，请她离开", text: "一场艰难的谈话后她体面退出。联创别扭了两周，但公司回到了正轨。丑话说在前面，是合伙人之间最大的温柔。", fx: { team: 6, network: -4 } },
@@ -762,35 +1111,67 @@ const WILDCARDS = [
     ],
   },
   {
-    id: "W15", phase: [1], title: "第一笔收入到账",
-    scene: "账户短信提示：到账 3,650 元。这是公司历史上第一笔真实收入——来自一个你不认识的陌生用户。",
+    id: "W15", phase: [1], ideaOnly: null, title: "第一笔像样的收入到账",
+    scene: "账户短信提示：一笔真实的收入到账了——来自一个你完全不认识的陌生用户。不多，但是真的。",
     options: [
-      { label: "截图裱起来，请全员吃火锅", text: "火锅店里大家轮流看那条短信，像看新生儿照片。这一晚，所有人都相信这事能成。", fx: { cash: -3, team: 10, health: 5 } },
-      { label: "存起来，一分不动", text: "你把短信默默转发给了自己，继续改 BUG。仪式感是奢侈品，活下去才是必需品。", fx: { cash: 3 } },
+      { label: "截图裱起来，请全员吃火锅", text: "火锅店里大家轮流看那条短信，像看新生儿照片。这一晚，所有人都相信这事能成。", fx: { team: 10, health: 5 } },
+      { label: "存起来，一分不动", text: "你把短信默默转发给了自己，继续改 BUG。仪式感是奢侈品，活下去才是必需品。", fx: {} },
     ],
   },
   {
-    id: "W16", phase: [2, 3], title: "大基金主动发来 TS",
+    id: "W16", phase: [2, 3], ideaOnly: null, title: "大基金主动发来 TS",
     scene: "一家你没主动接触过的头部基金突然发来 Term Sheet，估值给得很漂亮，但要一票否决权和对赌条款。",
     options: [
-      { label: "签！弹药要紧", text: "钱到账，公司提速。但董事会从此多了一位每次都问「什么时候盈利」的先生，你的很多决定开始需要「解释」。", fx: { cash: 20, team: -5 } },
+      { label: "签！弹药要紧", text: "钱到账，公司提速。但董事会从此多了一位每次都问「什么时候盈利」的先生，你的很多决定开始需要「解释」。", fx: { cash: 25, team: -5 } },
       { label: "拒掉对赌，只谈干净的钱", text: "谈判破裂，但你「敢拒头部基金」的故事传开了，圈内对你的评价反而高了：这人清楚自己要什么。", fx: { network: 8 } },
     ],
   },
   {
-    id: "W17", phase: [2, 3], title: "被职业打假人盯上",
+    id: "W17", phase: [2, 3], ideaOnly: null, title: "被职业打假人盯上",
     scene: "一位「职业打假人」批量购买你的产品后发起集体投诉，索赔金额精准卡在你的痛点上，媒体已经收到了「爆料」。",
     options: [
-      { label: "强硬应诉，绝不私了", text: "官司打赢了，判决书成了你产品质量的最佳广告。打假人默默把你移出了「客户」名单。", fx: { cash: -8, network: 6 } },
-      { label: "花钱消灾，私下和解", text: "钱付了，事平了。三个月后他带着新「同事」又来了——温顺的猎物总是被反复光顾。", fx: { cash: -12 } },
+      { label: "强硬应诉，绝不私了", text: "官司打赢了，判决书成了你产品质量的最佳广告。打假人默默把你移出了「客户」名单。", fx: { cash: -3, network: 6 } },
+      { label: "花钱消灾，私下和解", text: "钱付了，事平了。三个月后他带着新「同事」又来了——温顺的猎物总是被反复光顾。", fx: { cash: -5 } },
     ],
   },
   {
-    id: "W18", phase: [2, 3], title: "你在机场晕倒了",
+    id: "W18", phase: [2, 3], ideaOnly: null, title: "你在机场晕倒了",
     scene: "连续出差第 19 天，你在机场安检口眼前一黑。醒来时人在医院，手机里 47 个未接来电。",
     options: [
-      { label: "听医生的，住院一周彻底检查", text: "查出了早期问题，及时干预。出院那天你把日程表砍掉了一半——有些会，不开公司也不会倒。", fx: { health: 12, cash: -5 } },
+      { label: "听医生的，住院一周彻底检查", text: "查出了早期问题，及时干预。出院那天你把日程表砍掉了一半——有些会，不开公司也不会倒。", fx: { health: 12, cash: -2 } },
       { label: "输完液就回去开会", text: "你下午就出现在了会议室，团队敬佩你的拼命，也开始效仿你的拼命。这家公司的健康债，越欠越多。", fx: { health: -12, team: 3 } },
+    ],
+  },
+  {
+    id: "W19", phase: null, ideaOnly: "brand", title: "测评博主的「自来水」",
+    scene: "一个百万粉的测评博主自费买了你的产品，拍了条真情实感的好评视频，播放量正在起飞。",
+    options: [
+      { label: "趁热加投流量放大", text: "你把这条视频推成了爆款素材，转化率是硬广的三倍。真诚，果然是最好的套路。", fx: { traction: 6, cash: -2 } },
+      { label: "不打扰，让它自然生长", text: "视频自然发酵，涨了一波口碑。博主后来知道你没蹭没投，反而主动来谈了长期合作。", fx: { traction: 3, network: 3 } },
+    ],
+  },
+  {
+    id: "W20", phase: [2, 3], ideaOnly: "brand", title: "山寨「熬夜水」泛滥",
+    scene: "拼多多上冒出十几家「熬夜氺」「敖夜水」，包装像素级模仿，价格只有你的三分之一。",
+    options: [
+      { label: "重拳打假维权", text: "律师函加平台投诉双管齐下，下架了一大批。维权的新闻还上了行业媒体——「被山寨」意外成了实力认证。", fx: { cash: -3, network: 4, traction: 2 } },
+      { label: "懒得管，做好自己", text: "山寨货质量堪忧，喝出问题的用户找上了你的客服。你花了三个月才让消费者搞明白谁是正主。", fx: { traction: -6 } },
+    ],
+  },
+  {
+    id: "W21", phase: [1], ideaOnly: "ring", title: "众筹支持者集体催发货",
+    scene: "供应链延期一个月，Kickstarter 评论区开始刷「scam?」。海外用户的耐心，正在以小时为单位流失。",
+    options: [
+      { label: "直播工厂进度，透明到底", text: "你每周在产线前直播进度，连螺丝供应商都出了镜。支持者从催单变成了追更，还有人剪了「中国工厂 vlog」。", fx: { network: 5, traction: 3, health: -4 } },
+      { label: "闷头赶工，货到自然平", text: "货最终发出去了，但沉默的一个月里退款流失了一成支持者，页面上「跳票」的标签留了下来。", fx: { team: -4, traction: -3 } },
+    ],
+  },
+  {
+    id: "W22", phase: [2, 3], ideaOnly: "ring", title: "红海航运受阻",
+    scene: "航线告警，你发往中东的两个集装箱被迫绕行好望角，交期凭空多出三周。经销商的电话已经打过来了。",
+    options: [
+      { label: "改空运，保住交期", text: "运费贵到肉疼，但旺季订单一单没丢。经销商在朋友圈发：「这个中国品牌，靠谱。」", fx: { cash: -6, network: 5 } },
+      { label: "走海运，和经销商谈补偿", text: "你用赠品和账期安抚了渠道，但货架空了三周，被一个土耳其品牌趁虚而入。", fx: { traction: -5 } },
     ],
   },
 ];
@@ -819,10 +1200,11 @@ const ENDINGS = {
       lesson: "创业教会你的事：你倒下的那一刻，估值、期权、GMV，都只是一串数字。",
     },
   },
+  // ctx: { stage, crits }；按顺序从上往下匹配，命中即停
   final: [
     {
       id: "sweeper",
-      cond: (s, total, crits) => s.health >= 90 && total >= 220 && crits >= 3,
+      cond: (s, ctx) => s.health >= 90 && ctx.crits >= 3 && s.traction >= 40 && s.cash >= 30,
       title: "扫地僧",
       badge: "🏆 隐藏结局",
       text: "十年过去，你的公司不大不小，但你成了圈子里的一个传说：融资从不焦虑、裁员从不撕破脸、每天六点下班去游泳。\n有年轻创业者问你秘诀，你想了想说：「运气好，身体好，睡得好。」他们以为你在敷衍。\n只有你知道，这十年每一个命运的骰子落下时，你都接住了。",
@@ -830,7 +1212,7 @@ const ENDINGS = {
     },
     {
       id: "ipo",
-      cond: (s, total) => s.cash >= 80 && total >= 280,
+      cond: (s, ctx) => ctx.stage >= 4 && s.cash >= 150 && s.traction >= 80,
       title: "敲钟上市 ——「鸣锣这一刻」",
       badge: "",
       text: "交易所的钟声响起时，你看向台下：有陪你熬过办公室地板的联创，有拒绝过你七次的投资人，有当年发着 38 度烧还在改代码的工程师。\n股价的曲线开始跳动，市值折算下来，早期员工的期权够在这座城市买房了。\n敲完钟你躲进洗手间哭了三分钟，出来时笑容标准，像过去十年的每一天。",
@@ -838,7 +1220,7 @@ const ENDINGS = {
     },
     {
       id: "hidden_champion",
-      cond: (s, total) => total >= 240,
+      cond: (s) => s.traction >= 60 && s.cash >= 80,
       title: "隐形冠军 ——「闷声发大财」",
       badge: "",
       text: "你的名字很少出现在热搜上，你的公司却出现在行业里每一条供应链的深处。\n市占率第一、连续五年盈利、零负债。同行想抄你，发现你的壁垒不在明处，在十年积累的每一个细节里。\n有基金想投你，你笑着回：「我们不缺钱，缺的您也给不了——时间。」",
@@ -846,7 +1228,7 @@ const ENDINGS = {
     },
     {
       id: "acquired",
-      cond: (s, total) => total >= 180 && s.network >= 50,
+      cond: (s) => s.traction >= 40 && s.network >= 55,
       title: "体面卖身 ——「一个好价钱」",
       badge: "",
       text: "谈判持续了四个月，最终大厂的收购要约摆在桌上：不算暴富，但足够体面。\n签字那天，对方的 VP 说：「你们团队我们全要，品牌保留。」这是你争取到的最重要的条款。\n交割完成，你在全员信里写：「我们没能改变世界，但我们把自己活成了一个不错的价格。」",
@@ -854,7 +1236,7 @@ const ENDINGS = {
     },
     {
       id: "small_beautiful",
-      cond: (s, total) => total >= 140 && s.health >= 50,
+      cond: (s) => s.traction >= 20 && s.health >= 50 && s.cash >= 8,
       title: "小而美 ——「一间自己的公司」",
       badge: "",
       text: "十几个人，几百万利润，一个稳定的客户群。你的公司成不了独角兽，但每年团建可以去海边。\n你不再看融资新闻，不再对标竞品，员工的孩子你都叫得出名字。\n偶尔有前同事问你「就这样了吗」，你想起十年前那个焦虑到失眠的自己，回了三个字：「挺好的。」",
@@ -862,7 +1244,7 @@ const ENDINGS = {
     },
     {
       id: "zombie",
-      cond: (s, total) => total >= 140,
+      cond: (s) => s.traction >= 15 || s.cash >= 25,
       title: "僵尸企业 ——「活着，但只是活着」",
       badge: "",
       text: "公司还在，业务还有，工资照发。只是所有人都知道，这家公司不会再长大了——包括你。\n你的日程表排得很满，但没有一件事让你心跳加速。体检报告越来越厚，梦想越来越薄。\n有人劝你关掉算了，你摇摇头。不是舍不得公司，是不知道除了这个，自己还会干什么。",
@@ -879,13 +1261,15 @@ const ENDINGS = {
   ],
 };
 
-const ATTRS = ["cash", "team", "network", "health"];
+const ATTRS = ["cash", "traction", "team", "network", "health"];
 const ATTR_META = {
-  cash:    { icon: "💰", name: "现金" },
-  team:    { icon: "👥", name: "团队" },
-  network: { icon: "🤝", name: "人脉" },
-  health:  { icon: "❤️", name: "健康" },
+  cash:     { icon: "💰", name: "现金" },
+  traction: { icon: "📈", name: "数据" },
+  team:     { icon: "👥", name: "团队" },
+  network:  { icon: "🤝", name: "人脉" },
+  health:   { icon: "❤️", name: "健康" },
 };
+const WARN_AT = { cash: 8, traction: 5, team: 20, network: 20, health: 20 };
 const TOTAL_NODES = 27;
 const WILDCARD_CHANCE = { 1: 0.30, 2: 0.40, 3: 0.50 };
 const CRIT_SUCCESS_PREFIX = "🎉 时来运转！";
@@ -901,17 +1285,20 @@ function newState(idea) {
   return {
     idea,
     stats: { ...idea.stats },
-    node: 0,                 // 当前节点（1–27）
-    lastChoiceIds: [],       // 上一节点展示过的 3 个选项 id
+    node: 0,                  // 当前节点（1–27）
+    stage: 0,                 // 已完成的融资轮次数（0=未融资）
+    lastChoiceIds: [],
     usedWildcards: new Set(),
-    log: [],                 // { node, time, actionId, tier }
+    log: [],                  // { node, time, title, tier }
+    funding: [],              // { time, name, amount }
     critSuccessCount: 0,
+    lastFlow: null,           // 最近一次的现金流明细 { burn, rev, net }
     over: false,
   };
 }
 
 /* ============================================================
-   engine —— 节点推进 / 掷骰 / 结算
+   engine —— 推进 / 掷骰 / 现金流 / 融资 / 结算
    ============================================================ */
 function phaseOfNode(node) {
   if (node <= 12) return 1;
@@ -930,13 +1317,31 @@ function timeLabel(node) {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-// 属性修正：clamp(floor((关联属性-50)/15), -3, +3)；checkAttr 为 null 无修正
-function attrMod(checkAttr) {
-  if (!checkAttr) return 0;
-  return clamp(Math.floor((state.stats[checkAttr] - 50) / 15), -3, 3);
+// 融资分 = 数据×2 + 团队 + 人脉（不含现金/健康）
+function fundScore() {
+  return state.stats.traction * 2 + state.stats.team + state.stats.network;
 }
 
-// 应用 fx（可选倍率），返回实际生效的变化量
+// 每节点现金流：时间粒度越粗、轮次越晚，烧钱越多；数据带来收入
+function cashflow() {
+  const phase = phaseOfNode(state.node);
+  const tr = state.stats.traction;
+  const stageMult = 1 + state.stage * 0.4;
+  let burn, rev;
+  if (phase === 1) { burn = Math.ceil(1 * stageMult); rev = Math.floor(tr / 8); }
+  else if (phase === 2) { burn = Math.ceil(2.5 * stageMult); rev = Math.floor(tr * tr / 250); }
+  else { burn = Math.ceil(10 * stageMult); rev = Math.floor(tr * tr / 160); }
+  return { burn, rev, net: rev - burn };
+}
+
+// 属性修正：clamp(floor((关联属性-50)/15), -3, +3)；现金超过 100 按 100 计
+function attrMod(checkAttr) {
+  if (!checkAttr) return 0;
+  const v = Math.min(state.stats[checkAttr], 100);
+  return clamp(Math.floor((v - 50) / 15), -3, 3);
+}
+
+// 应用 fx（可选倍率）。现金下限 0 无上限，其余 0–100
 function applyFx(fx, mult) {
   mult = mult || 1;
   const applied = {};
@@ -947,14 +1352,15 @@ function applyFx(fx, mult) {
     }
     if (delta !== 0) {
       const before = state.stats[attr];
-      state.stats[attr] = clamp(before + delta, 0, 100);
-      applied[attr] = state.stats[attr] - before;
+      const after = attr === "cash" ? Math.max(0, before + delta) : clamp(before + delta, 0, 100);
+      state.stats[attr] = after;
+      applied[attr] = after - before;
     }
   }
   return applied;
 }
 
-// 归零检查，多属性同时归零按 健康>现金>团队>人脉 优先
+// 归零检查（数据不致死），多属性同时归零按 健康>现金>团队>人脉 优先
 function checkZero() {
   for (const attr of ["health", "cash", "team", "network"]) {
     if (state.stats[attr] <= 0) return attr;
@@ -962,11 +1368,28 @@ function checkZero() {
   return null;
 }
 
-// 从当前阶段选项池抽 3 个，排除上一节点展示过的（池子不足则放开）
+// 达标自动关轮（可能连关多轮），返回本次新完成的轮次列表
+function checkFunding() {
+  const closed = [];
+  while (state.stage < ROUNDS.length && fundScore() >= ROUNDS[state.stage].target) {
+    const round = ROUNDS[state.stage];
+    state.stats.cash += round.amount;
+    state.stage++;
+    state.funding.push({ time: timeLabel(Math.max(state.node, 1)), name: round.name, amount: round.amount });
+    state.log.push({ node: state.node, time: timeLabel(Math.max(state.node, 1)), title: `${round.name}到账 ¥${round.amount}M`, tier: "fund" });
+    closed.push(round);
+  }
+  return closed;
+}
+
+// 抽取选项：当前阶段 + 点子匹配 + 轮次门槛，排除上一节点展示过的
 function drawChoices() {
   const phase = phaseOfNode(state.node);
   const pool = ACTIONS.filter(a =>
-    a.phase === phase && (!a.ideaOnly || a.ideaOnly === state.idea.id)
+    a.phase === phase &&
+    (!a.ideaOnly || a.ideaOnly === state.idea.id) &&
+    (a.minStage === undefined || state.stage >= a.minStage) &&
+    (a.maxStage === undefined || state.stage <= a.maxStage)
   );
   let candidates = pool.filter(a => !state.lastChoiceIds.includes(a.id));
   if (candidates.length < 3) candidates = pool.slice();
@@ -999,7 +1422,7 @@ function resolveAction(action) {
     tier = "fail"; outcome = action.fail;
   }
   const applied = applyFx(outcome.fx, mult);
-  state.log.push({ node: state.node, time: timeLabel(state.node), actionId: action.id, tier });
+  state.log.push({ node: state.node, time: timeLabel(state.node), title: action.title, tier });
   return { roll, mod, total, tier, prefix, text: outcome.text, applied };
 }
 
@@ -1008,7 +1431,9 @@ function maybeDrawWildcard() {
   const phase = phaseOfNode(state.node);
   if (Math.random() >= WILDCARD_CHANCE[phase]) return null;
   const available = WILDCARDS.filter(w =>
-    !state.usedWildcards.has(w.id) && (!w.phase || w.phase.includes(phase))
+    !state.usedWildcards.has(w.id) &&
+    (!w.phase || w.phase.includes(phase)) &&
+    (!w.ideaOnly || w.ideaOnly === state.idea.id)
   );
   if (available.length === 0) return null;
   const card = available[Math.floor(Math.random() * available.length)];
@@ -1018,10 +1443,9 @@ function maybeDrawWildcard() {
 
 // 十年结局判定（严格从上到下，命中即停）
 function judgeFinalEnding() {
-  const s = state.stats;
-  const total = s.cash + s.team + s.network + s.health;
+  const ctx = { stage: state.stage, crits: state.critSuccessCount };
   for (const e of ENDINGS.final) {
-    if (e.cond(s, total, state.critSuccessCount)) return e;
+    if (e.cond(state.stats, ctx)) return e;
   }
   return ENDINGS.final[ENDINGS.final.length - 1];
 }
@@ -1032,11 +1456,20 @@ function judgeFinalEnding() {
 const $hud = document.getElementById("hud");
 const $main = document.getElementById("main");
 const $stats = document.getElementById("stats");
+const $hudInfo = document.getElementById("hud-info");
 const $timeLabel = document.getElementById("time-label");
 const $progressLabel = document.getElementById("progress-label");
 
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function stageName() {
+  return state.stage === 0 ? "未融资" : ROUNDS[state.stage - 1].name;
+}
+
+function attrValueText(attr, v) {
+  return attr === "cash" ? `¥${v}M` : String(v);
 }
 
 function fxTags(applied) {
@@ -1045,34 +1478,49 @@ function fxTags(applied) {
     const d = applied[attr];
     if (!d) continue;
     const m = ATTR_META[attr];
-    tags.push(`<span class="fx-tag ${d > 0 ? "pos" : "neg"}">${m.icon} ${m.name} ${d > 0 ? "+" : ""}${d}</span>`);
+    const unit = attr === "cash" ? "M" : "";
+    tags.push(`<span class="fx-tag ${d > 0 ? "pos" : "neg"}">${m.icon} ${m.name} ${d > 0 ? "+" : ""}${d}${unit}</span>`);
   }
   return tags.length ? `<div class="fx-list">${tags.join("")}</div>` : "";
 }
 
+function statBlock(attr, extraClass) {
+  const v = state.stats[attr];
+  const m = ATTR_META[attr];
+  const warn = v <= WARN_AT[attr] ? "warning" : "";
+  const over = attr === "cash" && v > 100 ? "overflow" : "";
+  const width = Math.min(v, 100);
+  return `<div class="stat ${warn} ${over} ${extraClass || ""}" data-attr="${attr}">
+    <div class="stat-head">
+      <span class="stat-name">${m.icon} ${m.name}</span>
+      <span class="stat-value">${attrValueText(attr, v)}</span>
+    </div>
+    <div class="stat-bar"><div class="stat-fill" style="width:${width}%"></div></div>
+  </div>`;
+}
+
 function renderHUD(applied) {
   $hud.style.display = "block";
-  $timeLabel.textContent = timeLabel(state.node);
+  $timeLabel.innerHTML = `${esc(timeLabel(state.node))}<span class="stage-badge">${esc(stageName())}</span>`;
   $progressLabel.textContent = `第 ${state.node}/${TOTAL_NODES} 个节点`;
-  $stats.innerHTML = ATTRS.map(attr => {
-    const v = state.stats[attr];
-    const m = ATTR_META[attr];
-    return `<div class="stat ${v <= 20 ? "warning" : ""}" data-attr="${attr}">
-      <div class="stat-head">
-        <span class="stat-name">${m.icon} ${m.name}</span>
-        <span class="stat-value">${v}</span>
-      </div>
-      <div class="stat-bar"><div class="stat-fill" style="width:${v}%"></div></div>
-    </div>`;
-  }).join("");
+  $stats.innerHTML = ATTRS.map(a => statBlock(a)).join("");
+  const flow = state.lastFlow;
+  const flowHtml = flow
+    ? `<span>本期现金流 <span class="${flow.net >= 0 ? "pos" : "neg"}">${flow.net >= 0 ? "+" : ""}${flow.net}M</span>（烧钱 ${flow.burn}M / 收入 ${flow.rev}M）</span>`
+    : "<span></span>";
+  const fundHtml = state.stage < ROUNDS.length
+    ? `<span class="fund-progress">下一轮 ${esc(ROUNDS[state.stage].name)} ¥${ROUNDS[state.stage].amount}M ｜ 融资分 ${fundScore()}/${ROUNDS[state.stage].target}</span>`
+    : `<span class="fund-progress">融资通关 · 资本对你已无秘密</span>`;
+  $hudInfo.innerHTML = flowHtml + fundHtml;
   if (applied) {
     for (const attr of ATTRS) {
       const d = applied[attr];
       if (!d) continue;
       const el = $stats.querySelector(`.stat[data-attr="${attr}"]`);
+      if (!el) continue;
       const f = document.createElement("span");
       f.className = "float-fx " + (d > 0 ? "pos" : "neg");
-      f.textContent = (d > 0 ? "+" : "") + d;
+      f.textContent = (d > 0 ? "+" : "") + d + (attr === "cash" ? "M" : "");
       el.appendChild(f);
       setTimeout(() => f.remove(), 1600);
     }
@@ -1081,7 +1529,7 @@ function renderHUD(applied) {
 
 function debugPanel(info) {
   if (!DEBUG || !info) return "";
-  return `<div id="debug-panel">[debug] roll=${info.roll} mod=${info.mod >= 0 ? "+" : ""}${info.mod} total=${info.total} ｜ S=${info.S} F=${info.F} ｜ tier=${info.tier}</div>`;
+  return `<div id="debug-panel">[debug] roll=${info.roll} mod=${info.mod >= 0 ? "+" : ""}${info.mod} total=${info.total} ｜ S=${info.S} F=${info.F} ｜ tier=${info.tier} ｜ 融资分=${fundScore()} stage=${state.stage}</div>`;
 }
 
 /* ---------- 开局 ---------- */
@@ -1090,13 +1538,13 @@ function showStart() {
   $hud.style.display = "none";
   $main.innerHTML = `
     <div class="title-hero">创业模拟器</div>
-    <div class="title-hero-sub">十年一觉创业梦 —— 选一个点子，开始你的十年。</div>
+    <div class="title-hero-sub">十年一觉创业梦 —— 选一个点子，从一穷二白开始。</div>
     ${IDEAS.map(idea => `
       <button class="btn" data-idea="${idea.id}">
         <div class="btn-title">${esc(idea.name)}</div>
         <div class="btn-sub">${esc(idea.desc)}</div>
         <div class="idea-stats">${ATTRS.map(a =>
-          `<span class="idea-stat">${ATTR_META[a].icon} ${ATTR_META[a].name} ${idea.stats[a]}</span>`).join("")}
+          `<span class="idea-stat">${ATTR_META[a].icon} ${ATTR_META[a].name} ${attrValueText(a, idea.stats[a])}</span>`).join("")}
         </div>
       </button>`).join("")}
   `;
@@ -1114,6 +1562,7 @@ function showFlavor(idea) {
     <div class="card">
       <h2>${esc(idea.name)}</h2>
       <p class="scene">${esc(idea.flavor)}</p>
+      <p class="dim" style="margin-top:10px">融资规则：数据×2 + 团队 + 人脉 达到目标分即自动进入下一轮，资金到账。每个节点都要烧钱——轮次越靠后，烧得越狠。</p>
     </div>
     <button class="btn btn-primary" id="go">开始创业</button>
   `;
@@ -1124,7 +1573,15 @@ function showFlavor(idea) {
 function nextNode() {
   state.node++;
   if (state.node > TOTAL_NODES) { showFinalEnding(); return; }
-  renderHUD();
+  // 结算本期现金流
+  const flow = cashflow();
+  state.lastFlow = flow;
+  const before = state.stats.cash;
+  state.stats.cash = Math.max(0, before + flow.net);
+  renderHUD({ cash: state.stats.cash - before });
+  const zero = checkZero();
+  if (zero) { showZeroEnding(zero); return; }
+
   const choices = drawChoices();
   $main.innerHTML = `
     <div class="card">
@@ -1133,7 +1590,7 @@ function nextNode() {
     </div>
     ${choices.map((a, i) => `
       <button class="btn" data-i="${i}">
-        <div class="btn-title">${esc(a.title)}</div>
+        <div class="btn-title"><span class="tag-chip">${esc(a.tag)}</span>${esc(a.title)}</div>
         <div class="btn-sub">${esc(a.scene)}</div>
       </button>`).join("")}
   `;
@@ -1162,9 +1619,39 @@ function onAction(action) {
 function afterAction() {
   const zero = checkZero();
   if (zero) { showZeroEnding(zero); return; }
+  const rounds = checkFunding();
+  if (rounds.length) { showFundingEvent(rounds, afterFunding); return; }
+  afterFunding();
+}
+
+function afterFunding() {
   const card = maybeDrawWildcard();
   if (card) { showWildcard(card); return; }
   nextNode();
+}
+
+/* ---------- 融资事件 ---------- */
+function showFundingEvent(rounds, done) {
+  renderHUD();
+  const round = rounds[0];
+  const rest = rounds.slice(1);
+  const overlay = document.createElement("div");
+  overlay.id = "overlay";
+  overlay.innerHTML = `
+    <div class="wildcard funding-card">
+      <span class="wildcard-tag">💰 融资到账</span>
+      <h2>${esc(round.name)}关闭</h2>
+      <div class="funding-amount">+¥${round.amount}M</div>
+      <p class="scene">${esc(round.text)}</p>
+      <div style="margin-top:14px"><button class="btn btn-primary" id="fund-next">继续</button></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector("#fund-next").addEventListener("click", () => {
+    overlay.remove();
+    if (rest.length) { showFundingEvent(rest, done); return; }
+    done();
+  });
 }
 
 /* ---------- 百搭卡 ---------- */
@@ -1200,6 +1687,8 @@ function showWildcard(card) {
         overlay.remove();
         const zero = checkZero();
         if (zero) { showZeroEnding(zero); return; }
+        const rounds = checkFunding();
+        if (rounds.length) { showFundingEvent(rounds, nextNode); return; }
         nextNode();
       });
     });
@@ -1210,24 +1699,25 @@ function showWildcard(card) {
 function endingReport() {
   const critSuccess = state.log.filter(l => l.tier === "crit_success").slice(0, 5);
   const critFail = state.log.filter(l => l.tier === "crit_fail").slice(0, 5);
-  const actionTitle = id => { const a = ACTIONS.find(x => x.id === id); return a ? a.title : id; };
   const logHtml = [...critSuccess, ...critFail]
     .sort((a, b) => a.node - b.node)
     .map(l => `<div class="log-item ${l.tier}">
       <span class="log-time">${esc(l.time)}</span>
       <span class="log-tier">${l.tier === "crit_success" ? "🎉 大成功" : "💀 大失败"}</span>
-      · ${esc(actionTitle(l.actionId))}
+      · ${esc(l.title)}
     </div>`).join("");
+  const fundingHtml = state.funding.map(f => `<div class="log-item fund">
+    <span class="log-time">${esc(f.time)}</span>
+    <span class="log-tier">💰 ${esc(f.name)}</span>
+    · 到账 ¥${f.amount}M
+  </div>`).join("");
   return `
     <div class="card">
       <h2>📋 十年创业报告</h2>
-      ${ATTRS.map(attr => {
-        const v = state.stats[attr]; const m = ATTR_META[attr];
-        return `<div class="report-stat stat" data-attr="${attr}">
-          <div class="stat-head"><span class="stat-name">${m.icon} ${m.name}</span><span class="stat-value">${v}</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width:${v}%"></div></div>
-        </div>`;
-      }).join("")}
+      <p class="dim" style="margin-bottom:10px">最终轮次：${esc(stageName())} ｜ 融资分 ${fundScore()}</p>
+      ${ATTRS.map(a => `<div class="report-stat">${statBlock(a)}</div>`).join("")}
+      <h2 style="margin-top:16px">💰 融资历程</h2>
+      ${fundingHtml || `<p class="dim">十年没融到一分钱——这也是一种硬气。</p>`}
       ${logHtml ? `<h2 style="margin-top:16px">🔑 关键选择回顾</h2>${logHtml}` : `<p class="dim" style="margin-top:12px">这十年没有惊天动地的大成功或大失败——平凡，也是一种叙事。</p>`}
     </div>
     <button class="btn btn-primary" id="restart">再来一局</button>
@@ -1240,7 +1730,7 @@ function showEndingPage(title, badge, text, lesson) {
   $main.innerHTML = `
     ${badge ? `<div class="ending-sub" style="margin-top:20px">${esc(badge)}</div>` : ""}
     <div class="ending-title">${esc(title)}</div>
-    <div class="ending-sub">${esc(timeLabel(Math.min(state.node, TOTAL_NODES)))} · ${esc(state.idea.name)}</div>
+    <div class="ending-sub">${esc(timeLabel(Math.min(Math.max(state.node, 1), TOTAL_NODES)))} · ${esc(state.idea.name)} · ${esc(stageName())}</div>
     <div class="card">
       <p class="ending-text scene">${esc(text)}</p>
       <div class="ending-lesson">${esc(lesson)}</div>
