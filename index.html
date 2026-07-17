@@ -9,23 +9,24 @@
    样式（像素/复古风）
    ============================================================ */
 :root {
-  --bg: #0d0d1a;
-  --bg-dark: #08080f;
-  --bg-card: #16162c;
-  --bg-card-hover: #222248;
-  --border: #3a3a6a;
-  --ink: #e8e8d8;
-  --text: #e8e8d8;
-  --text-dim: #8c8caa;
-  --accent: #4dd8ff;
-  --green: #58e858;
-  --red: #ff5252;
-  --gold: #ffd23e;
-  --cash: #ffd23e;
-  --traction: #58e858;
-  --team: #4dd8ff;
-  --network: #c980ff;
-  --health: #ff6b9d;
+  --bg: #0c0c14;
+  --bg-dark: #07070d;
+  --bg-card: #14141f;
+  --bg-card-hover: #1b1b2a;
+  --border: #2c2c40;
+  --border-strong: #40405c;
+  --ink: #e6e0cd;
+  --text: #e6e0cd;
+  --text-dim: #8d8a99;
+  --accent: #f2c14e;
+  --green: #7bd88a;
+  --red: #e85d5d;
+  --gold: #f2c14e;
+  --cash: #d9a02c;
+  --traction: #5b96db;
+  --team: #5b96db;
+  --network: #5b96db;
+  --health: #5b96db;
   --shadow: #000;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -64,7 +65,7 @@ body::after {
   display: inline-block;
   font-size: 0.72rem; font-weight: 700;
   color: var(--gold);
-  border: 2px solid var(--gold);
+  border: 2px solid var(--border-strong);
   padding: 0 8px; margin-left: 8px;
   vertical-align: 2px;
 }
@@ -85,8 +86,9 @@ body::after {
 .stat[data-attr="team"]     .stat-fill { background: var(--team); }
 .stat[data-attr="network"]  .stat-fill { background: var(--network); }
 .stat[data-attr="health"]   .stat-fill { background: var(--health); }
-.stat.overflow .stat-bar { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,210,62,0.5); }
+.stat.overflow .stat-bar { border-color: var(--gold); box-shadow: 0 0 8px rgba(242,193,78,0.45); }
 .stat.warning .stat-bar { animation: blinkRed 0.8s steps(2) infinite; }
+.stat.warning .stat-fill { background: var(--red); }
 .stat.warning .stat-value { color: var(--red); }
 @keyframes blinkRed {
   0%, 100% { border-color: var(--red); box-shadow: 0 0 0 2px var(--red); }
@@ -130,12 +132,12 @@ body::after {
 .card .dim { color: var(--text-dim); font-size: 0.88rem; }
 .result-card.crit-success {
   border-color: var(--gold);
-  box-shadow: 4px 4px 0 var(--shadow), 0 0 14px rgba(255,210,62,0.5);
+  box-shadow: 4px 4px 0 var(--shadow), 0 0 14px rgba(242,193,78,0.45);
 }
 .result-card.crit-success h2::before { color: var(--gold); }
 .result-card.crit-fail {
   border-color: var(--red);
-  box-shadow: 4px 4px 0 var(--shadow), 0 0 14px rgba(255,82,82,0.5);
+  box-shadow: 4px 4px 0 var(--shadow), 0 0 14px rgba(232,93,93,0.45);
   animation: shatter 0.5s steps(6);
 }
 .result-card.crit-fail h2::before { color: var(--red); }
@@ -163,7 +165,7 @@ body::after {
 .btn {
   display: block; width: 100%;
   background: var(--bg-card);
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-strong);
   box-shadow: 4px 4px 0 var(--shadow);
   color: var(--text);
   padding: 12px 14px;
@@ -190,10 +192,10 @@ body::after {
 }
 .btn-primary {
   background: var(--gold); color: #1a1400; text-align: center; font-weight: 700;
-  border-color: var(--ink);
+  border-color: var(--gold);
   letter-spacing: 4px;
 }
-.btn-primary:hover { background: var(--accent); border-color: var(--ink); color: #001a22; }
+.btn-primary:hover { background: #f8d078; border-color: #f8d078; color: #1a1400; }
 
 /* ---------- 弹层（百搭卡 / 融资） ---------- */
 #overlay {
@@ -208,7 +210,7 @@ body::after {
   max-width: 560px; width: 100%;
   max-height: 88vh; overflow-y: auto;
   padding: 20px;
-  box-shadow: 6px 6px 0 var(--shadow), 0 0 24px rgba(255,210,62,0.35);
+  box-shadow: 6px 6px 0 var(--shadow), 0 0 24px rgba(242,193,78,0.3);
   animation: fadeIn 0.25s steps(4);
 }
 .wildcard h2::before { content: "■ "; color: var(--gold); }
@@ -219,9 +221,8 @@ body::after {
   padding: 2px 10px;
   margin-bottom: 10px;
 }
-.funding-card { border-color: var(--green); box-shadow: 6px 6px 0 var(--shadow), 0 0 24px rgba(88,232,88,0.35); }
-.funding-card h2::before { color: var(--green); }
-.funding-card .wildcard-tag { background: var(--green); color: #00220a; }
+.funding-card { border-color: var(--gold); }
+.funding-card h2::before { color: var(--gold); }
 .funding-amount {
   font-size: 1.5rem; font-weight: 800; color: var(--green);
   text-shadow: 2px 2px 0 var(--shadow);
@@ -238,7 +239,7 @@ body::after {
 .ending-lesson {
   margin-top: 14px; padding: 12px 14px;
   border: 2px solid var(--gold);
-  background: rgba(255,210,62,0.07);
+  background: rgba(242,193,78,0.07);
   font-weight: 700;
 }
 .report-stat { margin-bottom: 10px; }
@@ -256,7 +257,7 @@ body::after {
   text-align: center; margin: 36px 0 8px; font-size: 1.9rem; font-weight: 800;
   letter-spacing: 6px;
   color: var(--gold);
-  text-shadow: 3px 3px 0 var(--shadow), 5px 5px 0 var(--border);
+  text-shadow: 3px 3px 0 var(--shadow);
 }
 .title-hero-sub { text-align: center; color: var(--text-dim); margin-bottom: 28px; }
 .title-hero-sub::after { content: "▮"; margin-left: 4px; animation: blink 1s steps(1) infinite; }
