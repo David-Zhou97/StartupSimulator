@@ -253,8 +253,21 @@ body::after {
 .footnote { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin: 24px 0 10px; }
 
 /* ---------- 角色选择 ---------- */
-.char-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.char-portrait { height: 140px; text-align: center; }
+/* 移动端：单页大卡左右滑（scroll-snap 轮播） */
+.char-list {
+  display: flex; overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  gap: 14px; padding: 4px 9vw 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.char-list::-webkit-scrollbar { display: none; }
+.char-list .btn { flex: 0 0 82vw; max-width: 340px; scroll-snap-align: center; }
+.char-swipe-hint { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin: 6px 0 2px; }
+.char-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.char-dots .dot { width: 8px; height: 8px; background: var(--border-strong); }
+.char-dots .dot.on { background: var(--gold); }
+.char-portrait { height: 230px; text-align: center; }
 .char-portrait img { height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45)); }
 .char-head {
   width: 26px; height: 26px; object-fit: cover;
@@ -283,7 +296,9 @@ body::after {
   font-size: 0.85rem; color: var(--gold);
 }
 @media (min-width: 1024px) {
-  .char-list { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .char-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; overflow-x: visible; padding: 0; }
+  .char-list .btn { flex: none; max-width: none; }
+  .char-swipe-hint, .char-dots { display: none; }
   .char-portrait { height: 200px; }
   .char-flavor-art { flex-basis: 130px; }
   .char-flavor-art img { width: 130px; }
@@ -2369,6 +2384,7 @@ function showCharSelect(idea) {
   $main.innerHTML = `
     <div class="title-hero" style="font-size:1.3rem;margin:20px 0 4px">选择你的创始人</div>
     <div class="title-hero-sub">${esc(idea.name)}</div>
+    <div class="char-swipe-hint">◀ 左右滑动查看全部创始人 ▶</div>
     <div class="char-list">
       ${CHARACTERS.map((c, i) => `
         <button class="btn char-card" data-char="${c.id}">
@@ -2379,9 +2395,18 @@ function showCharSelect(idea) {
           <div class="char-abilities">${esc(c.abilities)}</div>
         </button>`).join("")}
     </div>
+    <div class="char-dots">${CHARACTERS.map((c, i) => `<span class="dot${i === 0 ? " on" : ""}"></span>`).join("")}</div>
   `;
   window.scrollTo(0, 0);
   armUiGuard();
+  const list = $main.querySelector(".char-list");
+  const dots = $main.querySelectorAll(".char-dots .dot");
+  list.addEventListener("scroll", () => {
+    const max = list.scrollWidth - list.clientWidth;
+    if (max <= 0) return;
+    const i = Math.round(list.scrollLeft / max * (dots.length - 1));
+    dots.forEach((d, j) => d.classList.toggle("on", j === i));
+  }, { passive: true });
   $main.querySelectorAll("[data-char]").forEach(btn => {
     btn.addEventListener("click", () => {
       const char = CHARACTERS.find(c => c.id === btn.dataset.char);
