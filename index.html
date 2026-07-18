@@ -291,7 +291,7 @@ body::after {
   pointer-events: none;
 }
 /* 移动端：顶部固定立绘舞台，文字卡横滑，人物原位替换（滑动进度驱动） */
-.char-stage { position: relative; height: 44vh; min-height: 260px; margin-bottom: 4px; overflow: hidden; }
+.char-stage { position: relative; height: 44vh; min-height: 260px; margin-bottom: 4px; overflow: hidden; z-index: 100; }
 .char-stage .stage-art {
   position: absolute; left: 50%; top: 0; height: 100%;
   transform: translateX(-50%);
@@ -320,7 +320,7 @@ body::after {
 .char-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
 .char-dots .dot { width: 8px; height: 8px; background: var(--border-strong); }
 .char-dots .dot.on { background: var(--gold); }
-.char-portrait { height: 230px; text-align: center; }
+.char-portrait { height: 230px; text-align: center; position: relative; z-index: 100; }
 .char-portrait img { height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45)); }
 .char-head {
   width: 26px; height: 26px; object-fit: cover;
@@ -329,7 +329,7 @@ body::after {
 }
 .char-head.sm { width: 20px; height: 20px; vertical-align: -6px; }
 .char-flavor-card { display: flex; gap: 16px; align-items: flex-start; }
-.char-flavor-art { flex: 0 0 96px; }
+.char-flavor-art { flex: 0 0 96px; position: relative; z-index: 100; }
 .char-flavor-art img { width: 96px; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45)); }
 .char-flavor-text { flex: 1; min-width: 0; }
 .char-list .btn { margin-bottom: 0; display: flex; flex-direction: column; gap: 4px; padding: 12px; }
