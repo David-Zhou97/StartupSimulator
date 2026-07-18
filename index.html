@@ -252,6 +252,18 @@ body::after {
 .log-item.fund .log-tier { color: var(--green); font-weight: 700; }
 .footnote { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin: 24px 0 10px; }
 
+/* ---------- 开场白 ---------- */
+.intro-wrap {
+  min-height: calc(100vh - 60px);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.intro-hero { will-change: transform; }
+.intro-hero .title-banner { margin: 0 0 18px; }
+.intro-narration { animation: fadeIn 0.6s steps(6); }
+.intro-narration .scene { color: var(--text); }
+.intro-fade { transition: opacity 0.4s; }
+.intro-fade.out { opacity: 0; }
+
 /* ---------- 开局 ---------- */
 .title-hero {
   text-align: center; margin: 36px 0 8px; font-size: 1.9rem; font-weight: 800;
@@ -2028,6 +2040,40 @@ function debugPanel(info) {
   return `<div id="debug-panel">[debug] roll=${info.roll} mod=${info.mod >= 0 ? "+" : ""}${info.mod} total=${info.total} ｜ S=${info.S} F=${info.F} ｜ tier=${info.tier} ｜ 融资分=${fundScore()} stage=${state.stage}</div>`;
 }
 
+/* ---------- 开场白 ---------- */
+const INTRO_TEXT = "某个深夜，你在大厂的工位上改完第 11 版 PPT。楼下便利店的关东煮，你已经连吃了四个月。\n你突然想起入职那天的自己说过：三十岁之前，要做一件自己的事。\n窗外的写字楼还亮着一半的灯。你打开备忘录，写下了三个点子——\n辞职信，其实你已经存了很久了。";
+
+function showIntro() {
+  state = null;
+  $hud.style.display = "none";
+  document.getElementById("app").classList.remove("playing");
+  const heroHtml = ASSETS.title
+    ? `<div class="title-banner"><img src="${ASSETS.title}" alt=""><div class="title-hero">创业模拟器</div></div>`
+    : `<div class="title-hero">创业模拟器</div>`;
+  $main.innerHTML = `
+    <div class="intro-wrap">
+      <div class="intro-hero">${heroHtml}</div>
+      <div class="card intro-narration intro-fade">
+        <p class="scene">${esc(INTRO_TEXT)}</p>
+      </div>
+      <button class="btn btn-primary intro-fade" id="intro-go">递 交 辞 职 信</button>
+    </div>
+  `;
+  window.scrollTo(0, 0);
+  armUiGuard();
+  document.getElementById("intro-go").addEventListener("click", introTransition);
+}
+
+// 开场转场：背景图上移到开局页位置，文案淡出，随后进入点子选择
+function introTransition() {
+  const hero = $main.querySelector(".intro-hero");
+  const dy = hero.getBoundingClientRect().top - 16;
+  hero.style.transition = "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)";
+  hero.style.transform = `translateY(${-dy}px)`;
+  $main.querySelectorAll(".intro-fade").forEach(el => el.classList.add("out"));
+  setTimeout(showStart, 730);
+}
+
 /* ---------- 开局 ---------- */
 function showStart() {
   state = null;
@@ -2119,6 +2165,7 @@ function nextNode() {
       </button>`).join("")}
     </div>
   `;
+  window.scrollTo(0, 0);
   armUiGuard();
   $main.querySelectorAll("[data-i]").forEach(btn => {
     btn.addEventListener("click", () => onAction(choices[+btn.dataset.i]));
@@ -2165,6 +2212,7 @@ function onAction(action) {
     </div>
     <button class="btn btn-primary" id="next">继续</button>
   `;
+  window.scrollTo(0, 0);
   armUiGuard();
   document.getElementById("next").addEventListener("click", afterAction);
 }
@@ -2374,13 +2422,14 @@ document.addEventListener("keydown", e => {
     if (b) { e.preventDefault(); b.click(); }
   } else if (e.key === "Enter" || e.key === " ") {
     const target = document.getElementById("fund-next") || document.getElementById("wc-next")
-      || document.getElementById("next") || document.getElementById("go") || document.getElementById("restart");
+      || document.getElementById("next") || document.getElementById("go")
+      || document.getElementById("intro-go") || document.getElementById("restart");
     if (target) { e.preventDefault(); target.click(); }
   }
 });
 
 /* ---------- 启动 ---------- */
-loadAssets().then(showStart);
+loadAssets().then(showIntro);
 </script>
 </body>
 </html>
