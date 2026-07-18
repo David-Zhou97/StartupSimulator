@@ -252,6 +252,26 @@ body::after {
 .log-item.fund .log-tier { color: var(--green); font-weight: 700; }
 .footnote { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin: 24px 0 10px; }
 
+/* ---------- 角色选择 ---------- */
+.char-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.char-list .btn { margin-bottom: 0; display: flex; flex-direction: column; gap: 4px; padding: 12px; }
+.char-avatar-big { font-size: 40px; text-align: center; line-height: 1.3; }
+.char-title { color: var(--text-dim); font-weight: 400; }
+.char-tier { font-size: 0.72rem; font-weight: 700; }
+.char-tier.tier-light { color: var(--green); }
+.char-tier.tier-bold { color: var(--red); }
+.char-tier.tier-growth { color: #c980ff; }
+.char-abilities {
+  font-size: 0.74rem; color: var(--gold);
+  border-top: 2px dashed var(--border); padding-top: 6px; margin-top: 2px;
+}
+.char-note {
+  margin-top: 10px; padding: 8px 12px;
+  border: 2px dashed var(--gold);
+  font-size: 0.85rem; color: var(--gold);
+}
+@media (min-width: 1024px) { .char-list { grid-template-columns: repeat(3, 1fr); } }
+
 /* ---------- 开场白 ---------- */
 .intro-wrap {
   min-height: calc(100vh - 60px);
@@ -500,7 +520,62 @@ const IDEAS = [
   },
 ];
 
-// 融资轮次：融资分 = 数据×2 + 团队 + 人脉，达标自动关轮到账
+// 角色卡：五种生效钩子 statMod / rollMod / globalRollMod(经 special 表达) / fxMod / special
+const CHARACTERS = [
+  {
+    id: "chen", name: "陈定邦", title: "大厂P8", gender: "m", tier: "light", emoji: "👔",
+    desc: "在大厂当了十二年中层，方法论倒背如流，终于决定亲自下场验证一次「我上我也行」。",
+    quote: "「我们在大厂的时候，都是这么做的。……好吧，这里不是大厂。」",
+    abilities: "团队 +8 ｜ 团队类行动掷骰 +1",
+    statMod: { team: 8 }, rollMod: { team: 1 }, fxMod: [], special: [],
+  },
+  {
+    id: "su", name: "苏曼曼", title: "厂二代", gender: "f", tier: "light", emoji: "💎",
+    desc: "家里在佛山有三条产线。她创业不是为了钱，是为了证明「不靠家里也行」——当然，破产是不可能破产的。",
+    quote: "「爸，这次我真的不用你的钱。……嗯，就这一次，最后一次。」",
+    abilities: "现金 +¥3M、人脉 +5 ｜ 所有现金损失 -20%",
+    statMod: { cash: 3, network: 5 }, rollMod: {}, fxMod: [{ type: "cashLoss", mult: 0.8 }], special: [],
+  },
+  {
+    id: "kathy", name: "王凯瑟琳", title: "连续创业者", gender: "f", tier: "bold", emoji: "🍷",
+    desc: "第四次创业。前三次一次卖身、一次清算、一次「不方便说」。投资圈都认识她，健身房没人认识她。",
+    quote: "「这是我第四次创业。前三次的教训，值十个亿——都是投资人的十个亿。」",
+    abilities: "人脉 +15、健康 -10 ｜ 人脉骰 +2、团队骰 -1 ｜ 融资分 +15 ｜ 应酬如命：偶数节点掉血",
+    statMod: { network: 15, health: -10 }, rollMod: { network: 2, team: -1 }, fxMod: [],
+    special: ["fundScoreBonus15", "drainHealthEvenNode"],
+  },
+  {
+    id: "gu", name: "顾一行", title: "天才极客", gender: "m", tier: "bold", emoji: "🤓",
+    desc: "高中信息学金牌，大学退学写代码。坚信能用代码解决的问题都不是问题，而人，是问题。",
+    quote: "「能用代码解决的事，为什么要开会？」",
+    abilities: "数据 +10、人脉 -10 ｜ 数据骰 +2、人脉骰 -2 ｜ 数据增益 +25%",
+    statMod: { traction: 10, network: -10 }, rollMod: { traction: 2, network: -2 },
+    fxMod: [{ type: "tractionGain", mult: 1.25 }], special: [],
+  },
+  {
+    id: "luna", name: "罗小娜", title: "流量女王", gender: "f", tier: "bold", emoji: "📱",
+    desc: "前 MCN 操盘手，捧红过 6 个百万粉账号。她自己就是行走的增长引擎，也是行走的舆情风险。",
+    quote: "「没有什么危机是一条爆款视频解决不了的。如果有，就两条。」",
+    abilities: "数据 +5、人脉 +5 ｜ 自带流量：每 3 个节点数据 +1 ｜ 热搜体质：暴击两极放大 ｜ 失败时人脉损失 +50%",
+    statMod: { traction: 5, network: 5 }, rollMod: {},
+    fxMod: [{ type: "failNetworkLoss", mult: 1.5 }], special: ["tractionOddNode", "critAmplify"],
+  },
+  {
+    id: "wang", name: "王进步", title: "路人甲", gender: "m", tier: "growth", emoji: "🚶",
+    desc: "没人说得清王进步是谁。但他实习过的三家小破公司都在他离职后一年内上市。他口袋里揣着一个从高三用到现在的本子，封面写着两个字：错题。",
+    quote: "「别人有背景，我只有背影。还有这本错题本。」",
+    abilities: "现金 -¥1M、其余四维 -3 ｜ 错题本：每 2 次失败，最低属性永久 +6 ｜ 渐入佳境：二阶段起全骰 +1、三阶段 +2 ｜ 厚积薄发：三阶段大成功 ×2",
+    statMod: { cash: -1, traction: -3, team: -3, network: -3, health: -3 }, rollMod: {},
+    fxMod: [], special: ["wrongAnswerBook", "phaseRollGrowth", "lateGameCritX2"],
+  },
+];
+const TIER_META = {
+  light: { icon: "🟢", name: "轻装上阵" },
+  bold: { icon: "🔴", name: "高风险高回报" },
+  growth: { icon: "🟣", name: "大器晚成" },
+};
+
+// 融资轮次：融资分 = 数据×2 + 团队 + 人脉 (+角色加成)，达标自动关轮到账
 const ROUNDS = [
   { name: "天使/种子轮", target: 100, amount: 12,
     text: "一位天使投资人在咖啡厅听完你的故事，掏出手机当场转了定金：「别谢我，我投的是十年后的你。」" },
@@ -1778,10 +1853,17 @@ const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
    ============================================================ */
 let state = null;
 
-function newState(idea) {
+function newState(idea, char) {
+  const stats = {};
+  for (const k of ["cash", "traction", "team", "network", "health"]) {
+    const v = idea.stats[k] + ((char && char.statMod[k]) || 0);
+    stats[k] = k === "cash" ? Math.max(0, v) : Math.max(0, Math.min(100, v));
+  }
   return {
     idea,
-    stats: { ...idea.stats },
+    char: char || null,
+    wrongPages: 0,            // 错题本页数（王进步）
+    stats,
     node: 0,                  // 当前节点（1–27）
     stage: 0,                 // 已完成的融资轮次数（0=未融资）
     lastChoiceIds: [],
@@ -1817,9 +1899,38 @@ function timeLabel(node) {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-// 融资分 = 数据×2 + 团队 + 人脉（不含现金/健康）
+// 角色钩子辅助
+function hasSpecial(key) { return !!(state.char && state.char.special.includes(key)); }
+
+// 角色掷骰修正：rollMod 按 checkAttr 匹配 + 王进步的阶段成长全局修正
+function charRollMod(checkAttr) {
+  const c = state.char;
+  if (!c) return 0;
+  let m = (checkAttr && c.rollMod[checkAttr]) || 0;
+  if (c.special.includes("phaseRollGrowth")) {
+    const ph = phaseOfNode(state.node);
+    m += ph === 2 ? 1 : ph === 3 ? 2 : 0;
+  }
+  return m;
+}
+
+// 角色 fxMod：先算百分比、向上取整（损失至少仍 1 点），再进常规结算
+function charFx(fx, opts) {
+  const c = state.char;
+  if (!c || !c.fxMod.length) return fx;
+  const out = { ...fx };
+  for (const m of c.fxMod) {
+    if (m.type === "cashLoss" && (out.cash || 0) < 0) out.cash = -Math.max(1, Math.ceil(-out.cash * m.mult));
+    if (m.type === "tractionGain" && (out.traction || 0) > 0) out.traction = Math.ceil(out.traction * m.mult);
+    if (m.type === "failNetworkLoss" && opts && opts.fail && (out.network || 0) < 0) out.network = -Math.ceil(-out.network * m.mult);
+  }
+  return out;
+}
+
+// 融资分 = 数据×2 + 团队 + 人脉 + 角色加成（不含现金/健康）
 function fundScore() {
-  return state.stats.traction * 2 + state.stats.team + state.stats.network;
+  return state.stats.traction * 2 + state.stats.team + state.stats.network
+    + (hasSpecial("fundScoreBonus15") ? 15 : 0);
 }
 
 // 每节点现金流：时间粒度越粗、轮次越晚，烧钱越多；数据带来收入
@@ -1833,6 +1944,28 @@ function cashflow() {
   else if (phase === 2) { burn = Math.ceil(2.5 * stageMult); rev = Math.floor(tr * tr / 250); }
   else { burn = Math.ceil(10 * stageMult); rev = Math.floor(tr * tr / 160); }
   return { burn, rev, net: rev - burn };
+}
+
+// 节点开始结算：现金流 + 体力消耗 + 角色节点被动（角色被动掉血最低扣到 1，不致死）
+function nodeStartEffects() {
+  const flow = cashflow();
+  flow.drain = phaseOfNode(state.node) === 1 ? 1 : phaseOfNode(state.node) === 2 ? 3 : 8;
+  state.lastFlow = flow;
+  const applied = {};
+  const bCash = state.stats.cash;
+  state.stats.cash = Math.max(0, bCash + flow.net);
+  if (state.stats.cash !== bCash) applied.cash = state.stats.cash - bCash;
+  const bHealth = state.stats.health;
+  let h = clamp(bHealth - flow.drain, 0, 100);
+  if (hasSpecial("drainHealthEvenNode") && state.node % 2 === 0 && h > 1) h = Math.max(1, h - 1);
+  state.stats.health = h;
+  if (h !== bHealth) applied.health = h - bHealth;
+  if (hasSpecial("tractionOddNode") && state.node % 3 === 0) {
+    const bt = state.stats.traction;
+    state.stats.traction = clamp(bt + 1, 0, 100);
+    if (state.stats.traction !== bt) applied.traction = state.stats.traction - bt;
+  }
+  return applied;
 }
 
 // 属性修正：clamp(floor((关联属性-50)/15), -3, +3)；现金超过 100 按 100 计
@@ -1913,14 +2046,21 @@ function drawChoices() {
   return picked;
 }
 
-// d20 判定（天然骰优先）
+// 合并两个 applyFx 返回的变化量
+function mergeApplied(applied, extra) {
+  for (const k in extra) applied[k] = (applied[k] || 0) + extra[k];
+}
+
+// d20 判定（天然骰优先）；角色 rollMod 与属性修正叠加后夹紧 ±5
 function resolveAction(action) {
   const roll = Math.floor(Math.random() * 20) + 1;
-  const mod = attrMod(action.checkAttr);
+  const mod = clamp(attrMod(action.checkAttr) + charRollMod(action.checkAttr), -5, 5);
   const total = roll + mod;
   let tier, outcome, mult = 1, prefix = "";
   if (roll === 20) {
-    tier = "crit_success"; outcome = action.success; mult = 1.5; prefix = CRIT_SUCCESS_PREFIX;
+    tier = "crit_success"; outcome = action.success; prefix = CRIT_SUCCESS_PREFIX;
+    // 厚积薄发：王进步阶段三的大成功倍率 ×2
+    mult = (hasSpecial("lateGameCritX2") && phaseOfNode(state.node) === 3) ? 2 : 1.5;
     state.critSuccessCount++;
   } else if (roll === 1) {
     tier = "crit_fail"; outcome = action.fail; mult = 1.5; prefix = CRIT_FAIL_PREFIX;
@@ -1931,19 +2071,46 @@ function resolveAction(action) {
   } else {
     tier = "fail"; outcome = action.fail;
   }
-  const applied = applyFx(outcome.fx, mult);
+  const isFail = tier === "fail" || tier === "crit_fail";
+  const fx = charFx(outcome.fx, { fail: isFail });
+  const applied = applyFx(fx, mult);
+  const notes = [];
   if (tier === "crit_success") {
     const heal = applyFx({ health: 4 });
-    if (heal.health) applied.health = (applied.health || 0) + heal.health;
+    mergeApplied(applied, heal);
     // C 轮后的时来运转：数据收益额外翻倍（规模效应）
-    if (state.stage >= 4 && (outcome.fx.traction || 0) > 0) {
-      const extra = applyFx({ traction: outcome.fx.traction });
-      if (extra.traction) applied.traction = (applied.traction || 0) + extra.traction;
+    if (state.stage >= 4 && (fx.traction || 0) > 0) {
+      mergeApplied(applied, applyFx({ traction: fx.traction }));
+    }
+    // 热搜体质：大成功额外 数据+5 人脉+5
+    if (hasSpecial("critAmplify")) {
+      mergeApplied(applied, applyFx({ traction: 5, network: 5 }));
+      notes.push("📱 冲上热搜！流量与人脉齐飞。");
+    }
+  }
+  if (tier === "crit_fail" && hasSpecial("critAmplify")) {
+    // 热搜体质：大失败额外 人脉-5 健康-5（被动扣减最低扣到 1，不致死）
+    const nLoss = Math.min(5, Math.max(0, state.stats.network - 1));
+    const hLoss = Math.min(5, Math.max(0, state.stats.health - 1));
+    mergeApplied(applied, applyFx({ network: -nLoss, health: -hLoss }));
+    notes.push("📱 翻车实录挂上热搜第一。");
+  }
+  // 错题本：失败也在喂它
+  if (isFail && hasSpecial("wrongAnswerBook")) {
+    state.wrongPages++;
+    if (state.wrongPages % 2 === 0) {
+      const order = ["health", "cash", "team", "network", "traction"];
+      let lowest = order[0];
+      for (const a of order) if (state.stats[a] < state.stats[lowest]) lowest = a;
+      mergeApplied(applied, applyFx({ [lowest]: 6 }));
+      notes.push(`✏️ 这道题，下次不会再错了。（${ATTR_META[lowest].name} +6）`);
+    } else {
+      notes.push("📖 错题本又厚了一页。");
     }
   }
   state.taken.add(action.id);
   state.log.push({ node: state.node, time: timeLabel(state.node), title: action.title, tier });
-  return { roll, mod, total, tier, prefix, text: outcome.text, applied };
+  return { roll, mod, total, tier, prefix, text: outcome.text, applied, notes };
 }
 
 // 抽百搭卡（可能返回 null）
@@ -2067,7 +2234,7 @@ function renderHUD(applied) {
   const logoUrl = ASSETS["idea_" + state.idea.id];
   const logoHtml = logoUrl ? `<img class="hud-logo px-img" src="${logoUrl}" alt="">` : "";
   $timeLabel.innerHTML = `${logoHtml}${esc(timeLabel(state.node))}${stageBadgeHtml()}`;
-  $progressLabel.textContent = `第 ${state.node}/${TOTAL_NODES} 个节点`;
+  $progressLabel.innerHTML = `${state.char ? `<span title="${esc(state.char.name)}">${state.char.emoji}</span> ` : ""}第 ${state.node}/${TOTAL_NODES} 个节点`;
   $stats.innerHTML = ATTRS.map(a => statBlock(a)).join("");
   const flow = state.lastFlow;
   const flowHtml = flow
@@ -2158,21 +2325,53 @@ function showStart() {
   $main.querySelectorAll("[data-idea]").forEach(btn => {
     btn.addEventListener("click", () => {
       const idea = IDEAS.find(i => i.id === btn.dataset.idea);
-      state = newState(idea);
+      showCharSelect(idea);
+    });
+  });
+}
+
+/* ---------- 角色选择 ---------- */
+function showCharSelect(idea) {
+  $main.innerHTML = `
+    <div class="title-hero" style="font-size:1.3rem;margin:20px 0 4px">选择你的创始人</div>
+    <div class="title-hero-sub">${esc(idea.name)}</div>
+    <div class="char-list">
+      ${CHARACTERS.map((c, i) => `
+        <button class="btn char-card" data-char="${c.id}">
+          <div class="char-avatar-big">${c.emoji}</div>
+          <div class="btn-title"><span class="key-hint">[${i + 1}]</span>${esc(c.name)}<span class="char-title">「${esc(c.title)}」</span></div>
+          <div class="char-tier tier-${c.tier}">${TIER_META[c.tier].icon} ${TIER_META[c.tier].name}</div>
+          <div class="btn-sub">${esc(c.desc)}</div>
+          <div class="char-abilities">${esc(c.abilities)}</div>
+        </button>`).join("")}
+    </div>
+  `;
+  window.scrollTo(0, 0);
+  armUiGuard();
+  $main.querySelectorAll("[data-char]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const char = CHARACTERS.find(c => c.id === btn.dataset.char);
+      state = newState(idea, char);
       showFlavor(idea);
     });
   });
 }
 
 function showFlavor(idea) {
+  const c = state.char;
   $main.innerHTML = `
     <div class="card">
       <h2>${esc(idea.name)}</h2>
       <p class="scene">${esc(idea.flavor)}</p>
+    </div>
+    <div class="card">
+      <h2>${c.emoji} ${esc(c.name)}「${esc(c.title)}」</h2>
+      <p class="scene">${esc(c.quote)}</p>
       <p class="dim" style="margin-top:10px">融资规则：数据×2 + 团队 + 人脉 达到目标分即自动进入下一轮，资金到账。每个节点都要烧钱——轮次越靠后，烧得越狠。你的启动资金只够撑几个月，创业还会持续消耗你的健康——融资到账、时来运转和生活里的小确幸能回一点血。先活到天使轮，再谈梦想。</p>
     </div>
     <button class="btn btn-primary" id="go">开始创业</button>
   `;
+  window.scrollTo(0, 0);
   armUiGuard();
   document.getElementById("go").addEventListener("click", nextNode);
 }
@@ -2181,15 +2380,9 @@ function showFlavor(idea) {
 function nextNode() {
   state.node++;
   if (state.node > TOTAL_NODES) { showFinalEnding(); return; }
-  // 结算本期现金流 + 创始人体力消耗（月 -1 / 季 -2 / 年 -3）
-  const flow = cashflow();
-  flow.drain = phaseOfNode(state.node) === 1 ? 1 : phaseOfNode(state.node) === 2 ? 3 : 8;
-  state.lastFlow = flow;
-  const beforeCash = state.stats.cash;
-  const beforeHealth = state.stats.health;
-  state.stats.cash = Math.max(0, beforeCash + flow.net);
-  state.stats.health = clamp(beforeHealth - flow.drain, 0, 100);
-  renderHUD({ cash: state.stats.cash - beforeCash, health: state.stats.health - beforeHealth });
+  // 结算本期现金流 + 体力消耗 + 角色节点被动
+  const nodeApplied = nodeStartEffects();
+  renderHUD(nodeApplied);
   const zero = checkZero();
   if (zero) { showZeroEnding(zero); return; }
 
@@ -2266,6 +2459,7 @@ function onAction(action) {
       ${r.prefix ? `<span class="crit-prefix">${esc(r.prefix)}</span>` : ""}
       <p class="scene">${esc(r.text)}</p>
       ${fxTags(r.applied)}
+      ${(r.notes || []).map(n => `<div class="char-note">${esc(n)}</div>`).join("")}
     </div>
     <button class="btn btn-primary" id="next">继续</button>
   `;
@@ -2389,7 +2583,7 @@ function showWildcard(card) {
   overlay.querySelectorAll("[data-i]").forEach(btn => {
     btn.addEventListener("click", () => {
       const opt = card.options[+btn.dataset.i];
-      const applied = applyFx(opt.fx);
+      const applied = applyFx(charFx(opt.fx));
       renderHUD(applied);
       overlay.querySelector(".wildcard").innerHTML = `
         <span class="wildcard-tag">⚡ 突发事件</span>
@@ -2431,7 +2625,7 @@ function endingReport() {
   return `
     <div class="card">
       <h2>📋 十年创业报告</h2>
-      <p class="dim" style="margin-bottom:10px">最终轮次：${esc(stageName())} ｜ 融资分 ${fundScore()}</p>
+      <p class="dim" style="margin-bottom:10px">本局角色：${state.char ? `${state.char.emoji} ${esc(state.char.name)}「${esc(state.char.title)}」` : "无"} ｜ 最终轮次：${esc(stageName())} ｜ 融资分 ${fundScore()}</p>
       ${ATTRS.map(a => `<div class="report-stat">${statBlock(a)}</div>`).join("")}
       <h2 style="margin-top:16px">💰 融资历程</h2>
       ${fundingHtml || `<p class="dim">十年没融到一分钱——这也是一种硬气。</p>`}
@@ -2472,9 +2666,9 @@ function showFinalEnding() {
 /* ---------- 键盘操作（桌面端）：1/2/3 选选项，回车/空格 继续 ---------- */
 document.addEventListener("keydown", e => {
   if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (e.key >= "1" && e.key <= "4") {
+  if (e.key >= "1" && e.key <= "6") {
     const scope = document.getElementById("overlay") || $main;
-    const btns = scope.querySelectorAll("[data-i], [data-idea]");
+    const btns = scope.querySelectorAll("[data-i], [data-idea], [data-char]");
     const b = btns[+e.key - 1];
     if (b) { e.preventDefault(); b.click(); }
   } else if (e.key === "Enter" || e.key === " ") {
