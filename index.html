@@ -254,6 +254,18 @@ body::after {
 
 /* ---------- 角色选择 ---------- */
 .char-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.char-portrait { height: 140px; text-align: center; }
+.char-portrait img { height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45)); }
+.char-head {
+  width: 26px; height: 26px; object-fit: cover;
+  border: 2px solid var(--border-strong); background: var(--bg-dark);
+  vertical-align: -8px;
+}
+.char-head.sm { width: 20px; height: 20px; vertical-align: -6px; }
+.char-flavor-card { display: flex; gap: 16px; align-items: flex-start; }
+.char-flavor-art { flex: 0 0 96px; }
+.char-flavor-art img { width: 96px; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45)); }
+.char-flavor-text { flex: 1; min-width: 0; }
 .char-list .btn { margin-bottom: 0; display: flex; flex-direction: column; gap: 4px; padding: 12px; }
 .char-avatar-big { font-size: 40px; text-align: center; line-height: 1.3; }
 .char-title { color: var(--text-dim); font-weight: 400; }
@@ -270,7 +282,13 @@ body::after {
   border: 2px dashed var(--gold);
   font-size: 0.85rem; color: var(--gold);
 }
-@media (min-width: 1024px) { .char-list { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) {
+  .char-list { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .char-portrait { height: 200px; }
+  .char-flavor-art { flex-basis: 130px; }
+  .char-flavor-art img { width: 130px; }
+  .char-head { width: 30px; height: 30px; }
+}
 
 /* ---------- 开场白 ---------- */
 .intro-wrap {
@@ -1803,6 +1821,8 @@ const ENDINGS = {
    assets —— 美术资产加载（webp→png 探测，缺图降级 emoji）
    ============================================================ */
 const ASSET_IDS = ["title", "idea_ai", "idea_brand", "idea_ring",
+  "char_chen", "char_su", "char_kathy", "char_gu", "char_luna", "char_wang",
+  "char_chen_head", "char_su_head", "char_kathy_head", "char_gu_head", "char_luna_head", "char_wang_head",
   "attr_cash", "attr_team", "attr_network", "attr_health", "attr_traction",
   "stamp_success", "stamp_mid", "stamp_fail", "fx_crit_success", "fx_crit_fail",
   "card_frame", "badge_round", "fx_funding", "phase_1", "phase_2", "phase_3"];
@@ -2187,6 +2207,20 @@ function attrValueText(attr, v) {
   return attr === "cash" ? `¥${v}M` : String(v);
 }
 
+// 角色立绘 / 头像（插画风，不做像素化渲染；缺图降级 emoji）
+function charPortraitHtml(c) {
+  const url = ASSETS["char_" + c.id];
+  return url
+    ? `<div class="char-portrait"><img src="${url}" alt="${esc(c.name)}"></div>`
+    : `<div class="char-avatar-big">${c.emoji}</div>`;
+}
+function charHeadHtml(c, cls) {
+  const url = ASSETS["char_" + c.id + "_head"];
+  return url
+    ? `<img class="char-head ${cls || ""}" src="${url}" alt="${esc(c.name)}" title="${esc(c.name)}">`
+    : `<span title="${esc(c.name)}">${c.emoji}</span>`;
+}
+
 // 属性图标：有素材用像素图，缺图降级 emoji
 function attrIconHtml(attr) {
   const url = ASSETS["attr_" + attr];
@@ -2234,7 +2268,7 @@ function renderHUD(applied) {
   const logoUrl = ASSETS["idea_" + state.idea.id];
   const logoHtml = logoUrl ? `<img class="hud-logo px-img" src="${logoUrl}" alt="">` : "";
   $timeLabel.innerHTML = `${logoHtml}${esc(timeLabel(state.node))}${stageBadgeHtml()}`;
-  $progressLabel.innerHTML = `${state.char ? `<span title="${esc(state.char.name)}">${state.char.emoji}</span> ` : ""}第 ${state.node}/${TOTAL_NODES} 个节点`;
+  $progressLabel.innerHTML = `${state.char ? charHeadHtml(state.char) + " " : ""}第 ${state.node}/${TOTAL_NODES} 个节点`;
   $stats.innerHTML = ATTRS.map(a => statBlock(a)).join("");
   const flow = state.lastFlow;
   const flowHtml = flow
@@ -2338,7 +2372,7 @@ function showCharSelect(idea) {
     <div class="char-list">
       ${CHARACTERS.map((c, i) => `
         <button class="btn char-card" data-char="${c.id}">
-          <div class="char-avatar-big">${c.emoji}</div>
+          ${charPortraitHtml(c)}
           <div class="btn-title"><span class="key-hint">[${i + 1}]</span>${esc(c.name)}<span class="char-title">「${esc(c.title)}」</span></div>
           <div class="char-tier tier-${c.tier}">${TIER_META[c.tier].icon} ${TIER_META[c.tier].name}</div>
           <div class="btn-sub">${esc(c.desc)}</div>
@@ -2364,10 +2398,13 @@ function showFlavor(idea) {
       <h2>${esc(idea.name)}</h2>
       <p class="scene">${esc(idea.flavor)}</p>
     </div>
-    <div class="card">
-      <h2>${c.emoji} ${esc(c.name)}「${esc(c.title)}」</h2>
+    <div class="card char-flavor-card">
+      ${ASSETS["char_" + c.id] ? `<div class="char-flavor-art"><img src="${ASSETS["char_" + c.id]}" alt=""></div>` : ""}
+      <div class="char-flavor-text">
+      <h2>${ASSETS["char_" + c.id] ? "" : c.emoji + " "}${esc(c.name)}「${esc(c.title)}」</h2>
       <p class="scene">${esc(c.quote)}</p>
       <p class="dim" style="margin-top:10px">融资规则：数据×2 + 团队 + 人脉 达到目标分即自动进入下一轮，资金到账。每个节点都要烧钱——轮次越靠后，烧得越狠。你的启动资金只够撑几个月，创业还会持续消耗你的健康——融资到账、时来运转和生活里的小确幸能回一点血。先活到天使轮，再谈梦想。</p>
+      </div>
     </div>
     <button class="btn btn-primary" id="go">开始创业</button>
   `;
@@ -2625,7 +2662,7 @@ function endingReport() {
   return `
     <div class="card">
       <h2>📋 十年创业报告</h2>
-      <p class="dim" style="margin-bottom:10px">本局角色：${state.char ? `${state.char.emoji} ${esc(state.char.name)}「${esc(state.char.title)}」` : "无"} ｜ 最终轮次：${esc(stageName())} ｜ 融资分 ${fundScore()}</p>
+      <p class="dim" style="margin-bottom:10px">本局角色：${state.char ? `${charHeadHtml(state.char, "sm")} ${esc(state.char.name)}「${esc(state.char.title)}」` : "无"} ｜ 最终轮次：${esc(stageName())} ｜ 融资分 ${fundScore()}</p>
       ${ATTRS.map(a => `<div class="report-stat">${statBlock(a)}</div>`).join("")}
       <h2 style="margin-top:16px">💰 融资历程</h2>
       ${fundingHtml || `<p class="dim">十年没融到一分钱——这也是一种硬气。</p>`}
