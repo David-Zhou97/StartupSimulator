@@ -164,6 +164,7 @@ body::after {
 /* ---------- 按钮 ---------- */
 .btn {
   display: block; width: 100%;
+  touch-action: manipulation;
   background: var(--bg-card);
   border: 3px solid var(--border-strong);
   box-shadow: 4px 4px 0 var(--shadow);
@@ -1914,6 +1915,18 @@ function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/* 移动端幽灵点击防护：界面切换后 350ms 内忽略真实触点，
+   防止弹层在手指坐标下方生成时被补发的合成点击误触
+   （合成 click()（键盘操作）isTrusted=false，不受影响） */
+let uiGuardUntil = 0;
+function armUiGuard() { uiGuardUntil = Date.now() + 350; }
+document.addEventListener("click", e => {
+  if (e.isTrusted && Date.now() < uiGuardUntil) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+}, true);
+
 function stageName() {
   return state.stage === 0 ? "未融资" : ROUNDS[state.stage - 1].name;
 }
@@ -2038,6 +2051,7 @@ function showStart() {
       </button>`).join("")}
     </div>
   `;
+  armUiGuard();
   $main.querySelectorAll("[data-idea]").forEach(btn => {
     btn.addEventListener("click", () => {
       const idea = IDEAS.find(i => i.id === btn.dataset.idea);
@@ -2056,6 +2070,7 @@ function showFlavor(idea) {
     </div>
     <button class="btn btn-primary" id="go">开始创业</button>
   `;
+  armUiGuard();
   document.getElementById("go").addEventListener("click", nextNode);
 }
 
@@ -2104,6 +2119,7 @@ function nextNode() {
       </button>`).join("")}
     </div>
   `;
+  armUiGuard();
   $main.querySelectorAll("[data-i]").forEach(btn => {
     btn.addEventListener("click", () => onAction(choices[+btn.dataset.i]));
   });
@@ -2149,6 +2165,7 @@ function onAction(action) {
     </div>
     <button class="btn btn-primary" id="next">继续</button>
   `;
+  armUiGuard();
   document.getElementById("next").addEventListener("click", afterAction);
 }
 
@@ -2192,6 +2209,7 @@ function maybeAcquisitionOffer(cont) {
     </div>
   `;
   document.body.appendChild(overlay);
+  armUiGuard();
   overlay.querySelector('[data-i="0"]').addEventListener("click", () => {
     overlay.remove();
     const e = late ? ACQUIRE_ENDINGS.late : ACQUIRE_ENDINGS.early;
@@ -2208,6 +2226,7 @@ function maybeAcquisitionOffer(cont) {
       ${fxTags(applied)}
       <div style="margin-top:14px"><button class="btn btn-primary" id="acq-next">继续</button></div>
     `;
+    armUiGuard();
     overlay.querySelector("#acq-next").addEventListener("click", () => { overlay.remove(); cont(); });
   });
 }
@@ -2235,6 +2254,7 @@ function showFundingEvent(rounds, done) {
     </div>
   `;
   document.body.appendChild(overlay);
+  armUiGuard();
   overlay.querySelector("#fund-next").addEventListener("click", () => {
     overlay.remove();
     if (rest.length) { showFundingEvent(rest, done); return; }
@@ -2260,6 +2280,7 @@ function showWildcard(card) {
     </div>
   `;
   document.body.appendChild(overlay);
+  armUiGuard();
   overlay.querySelectorAll("[data-i]").forEach(btn => {
     btn.addEventListener("click", () => {
       const opt = card.options[+btn.dataset.i];
@@ -2273,6 +2294,7 @@ function showWildcard(card) {
         ${fxTags(applied)}
         <div style="margin-top:14px"><button class="btn btn-primary" id="wc-next">继续</button></div>
       `;
+      armUiGuard();
       overlay.querySelector("#wc-next").addEventListener("click", () => {
         overlay.remove();
         const zero = checkZero();
@@ -2327,6 +2349,7 @@ function showEndingPage(title, badge, text, lesson) {
     </div>
     ${endingReport()}
   `;
+  armUiGuard();
   document.getElementById("restart").addEventListener("click", showStart);
   window.scrollTo(0, 0);
 }
