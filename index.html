@@ -252,6 +252,31 @@ body::after {
 .log-item.fund .log-tier { color: var(--green); font-weight: 700; }
 .footnote { text-align: center; color: var(--text-dim); font-size: 0.78rem; margin: 24px 0 10px; }
 
+/* ---------- 入场演出 ---------- */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.rise-in { animation: riseIn 0.45s steps(6) both; }
+.intro-line { animation: riseIn 0.55s steps(6) both; margin-bottom: 0.4em; }
+.idea-list .btn, .choice-list .btn, .char-list .btn { animation: riseIn 0.4s steps(5) both; }
+.idea-list .btn:nth-child(2), .choice-list .btn:nth-child(2), .char-list .btn:nth-child(2) { animation-delay: 0.08s; }
+.idea-list .btn:nth-child(3), .choice-list .btn:nth-child(3), .char-list .btn:nth-child(3) { animation-delay: 0.16s; }
+.choice-list .btn:nth-child(4), .char-list .btn:nth-child(4) { animation-delay: 0.24s; }
+.char-list .btn:nth-child(5) { animation-delay: 0.32s; }
+.char-list .btn:nth-child(6) { animation-delay: 0.40s; }
+@keyframes stageIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.char-stage { animation: stageIn 0.55s steps(7) both; }
+@keyframes artSlideIn {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: none; }
+}
+.char-flavor-art img { animation: artSlideIn 0.45s steps(6) both; }
+.char-flavor-text { animation: riseIn 0.45s steps(6) both; animation-delay: 0.12s; }
+
 /* ---------- 角色选择 ---------- */
 .char-card { position: relative; overflow: hidden; }
 .char-card::before {
@@ -2357,7 +2382,13 @@ function debugPanel(info) {
 }
 
 /* ---------- 开场白 ---------- */
-const INTRO_TEXT = "某个深夜，你在大厂的工位上改完第 11 版 PPT。楼下便利店的关东煮，你已经连吃了四个月。\n你突然想起入职那天的自己说过：三十岁之前，要做一件自己的事。\n窗外的写字楼还亮着一半的灯。你打开备忘录，写下了三个点子——\n辞职信，其实你已经存了很久了。";
+const INTRO_LINES = [
+  "这座城市，每天有三百家公司注册成立，也有三百家悄悄注销。",
+  "写字楼的灯彻夜亮着，像一场没有人肯先退场的牌局。",
+  "有人带着大厂方法论入场，有人揣着家里的产线，有人只有一个错题本。",
+  "现在，轮到你了。",
+  "选一个点子，选一个自己——用十年，验证一个答案。",
+];
 
 function showIntro() {
   state = null;
@@ -2370,9 +2401,9 @@ function showIntro() {
     <div class="intro-wrap">
       <div class="intro-hero">${heroHtml}</div>
       <div class="card intro-narration intro-fade">
-        <p class="scene">${esc(INTRO_TEXT)}</p>
+        ${INTRO_LINES.map((l, i) => `<p class="scene intro-line" style="animation-delay:${(0.2 + i * 0.45).toFixed(2)}s">${esc(l)}</p>`).join("")}
       </div>
-      <button class="btn btn-primary intro-fade" id="intro-go">递 交 辞 职 信</button>
+      <button class="btn btn-primary intro-fade rise-in" style="animation-delay:2.6s" id="intro-go">入 场</button>
     </div>
   `;
   window.scrollTo(0, 0);
