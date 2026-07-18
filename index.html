@@ -599,13 +599,6 @@ const IDEAS = [
 // 角色卡：五种生效钩子 statMod / rollMod / globalRollMod(经 special 表达) / fxMod / special
 const CHARACTERS = [
   {
-    id: "chen", name: "陈定邦", title: "大厂P8", gender: "m", tier: "light", emoji: "👔",
-    desc: "在大厂当了十二年中层，方法论倒背如流，终于决定亲自下场验证一次「我上我也行」。",
-    quote: "「我们在大厂的时候，都是这么做的。……好吧，这里不是大厂。」",
-    abilities: "团队 +8 ｜ 团队类行动掷骰 +1",
-    statMod: { team: 8 }, rollMod: { team: 1 }, fxMod: [], special: [],
-  },
-  {
     id: "su", name: "苏曼曼", title: "厂二代", gender: "f", tier: "light", emoji: "💎",
     desc: "家里在佛山有三条产线。她创业不是为了钱，是为了证明「不靠家里也行」——当然，破产是不可能破产的。",
     quote: "「爸，这次我真的不用你的钱。……嗯，就这一次，最后一次。」",
@@ -613,12 +606,11 @@ const CHARACTERS = [
     statMod: { cash: 3, network: 5 }, rollMod: {}, fxMod: [{ type: "cashLoss", mult: 0.8 }], special: [],
   },
   {
-    id: "gu", name: "顾一行", title: "天才极客", gender: "m", tier: "bold", emoji: "🤓",
-    desc: "高中信息学金牌，大学退学写代码。坚信能用代码解决的问题都不是问题，而人，是问题。",
-    quote: "「能用代码解决的事，为什么要开会？」",
-    abilities: "数据 +10、人脉 -10 ｜ 数据骰 +2、人脉骰 -2 ｜ 数据增益 +25%",
-    statMod: { traction: 10, network: -10 }, rollMod: { traction: 2, network: -2 },
-    fxMod: [{ type: "tractionGain", mult: 1.25 }], special: [],
+    id: "chen", name: "陈定邦", title: "大厂P8", gender: "m", tier: "light", emoji: "👔",
+    desc: "在大厂当了十二年中层，方法论倒背如流，终于决定亲自下场验证一次「我上我也行」。",
+    quote: "「我们在大厂的时候，都是这么做的。……好吧，这里不是大厂。」",
+    abilities: "团队 +8 ｜ 团队类行动掷骰 +1",
+    statMod: { team: 8 }, rollMod: { team: 1 }, fxMod: [], special: [],
   },
   {
     id: "kathy", name: "王凯瑟琳", title: "连续创业者", gender: "f", tier: "bold", emoji: "🍷",
@@ -629,12 +621,12 @@ const CHARACTERS = [
     special: ["fundScoreBonus15", "drainHealthEvenNode"],
   },
   {
-    id: "wang", name: "王进步", title: "路人甲", gender: "m", tier: "growth", emoji: "🚶",
-    desc: "没人说得清王进步是谁。但他实习过的三家小破公司都在他离职后一年内上市。他口袋里揣着一个从高三用到现在的本子，封面写着两个字：错题。",
-    quote: "「别人有背景，我只有背影。还有这本错题本。」",
-    abilities: "现金 -¥1M、其余四维 -3 ｜ 错题本：每 2 次失败，最低属性永久 +6 ｜ 渐入佳境：二阶段起全骰 +1、三阶段 +2 ｜ 厚积薄发：三阶段大成功 ×2",
-    statMod: { cash: -1, traction: -3, team: -3, network: -3, health: -3 }, rollMod: {},
-    fxMod: [], special: ["wrongAnswerBook", "phaseRollGrowth", "lateGameCritX2"],
+    id: "gu", name: "顾一行", title: "天才极客", gender: "m", tier: "bold", emoji: "🤓",
+    desc: "高中信息学金牌，大学退学写代码。坚信能用代码解决的问题都不是问题，而人，是问题。",
+    quote: "「能用代码解决的事，为什么要开会？」",
+    abilities: "数据 +10、人脉 -10 ｜ 数据骰 +2、人脉骰 -2 ｜ 数据增益 +25%",
+    statMod: { traction: 10, network: -10 }, rollMod: { traction: 2, network: -2 },
+    fxMod: [{ type: "tractionGain", mult: 1.25 }], special: [],
   },
   {
     id: "luna", name: "罗小娜", title: "流量女王", gender: "f", tier: "bold", emoji: "📱",
@@ -643,6 +635,14 @@ const CHARACTERS = [
     abilities: "数据 +5、人脉 +5 ｜ 自带流量：每 3 个节点数据 +1 ｜ 热搜体质：暴击两极放大 ｜ 失败时人脉损失 +50%",
     statMod: { traction: 5, network: 5 }, rollMod: {},
     fxMod: [{ type: "failNetworkLoss", mult: 1.5 }], special: ["tractionOddNode", "critAmplify"],
+  },
+  {
+    id: "wang", name: "王进步", title: "路人甲", gender: "m", tier: "growth", emoji: "🚶",
+    desc: "没人说得清王进步是谁。但他实习过的三家小破公司都在他离职后一年内上市。他口袋里揣着一个从高三用到现在的本子，封面写着两个字：错题。",
+    quote: "「别人有背景，我只有背影。还有这本错题本。」",
+    abilities: "现金 -¥1M、其余四维 -3 ｜ 错题本：每 2 次失败，最低属性永久 +6 ｜ 渐入佳境：二阶段起全骰 +1、三阶段 +2 ｜ 厚积薄发：三阶段大成功 ×2",
+    statMod: { cash: -1, traction: -3, team: -3, network: -3, health: -3 }, rollMod: {},
+    fxMod: [], special: ["wrongAnswerBook", "phaseRollGrowth", "lateGameCritX2"],
   },
 ];
 const TIER_META = {
