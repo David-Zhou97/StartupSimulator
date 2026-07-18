@@ -545,7 +545,7 @@ const ACTIONS = [
   {
     id: "P103", phase: 1, tag: "团队", title: "三顾茅庐挖大牛",
     scene: "朋友推荐了一位大厂 P8，技术极强但年薪百万。你约他在公司楼下的兰州拉面聊了三次。",
-    checkAttr: "network", S: 15, F: 9, ideaOnly: null,
+    checkAttr: "network", S: 15, F: 9, ideaOnly: ["ai", "ring"],
     success: { text: "第三碗拉面吃完，他说：「工资砍半，股份补上，下周一入职。」你多要了一份小菜庆祝。", fx: { team: 14, cash: -2 } },
     mid:     { text: "他没来，但答应做技术顾问，每周远程指导一次。聊胜于无。", fx: { team: 5, cash: -1 } },
     fail:    { text: "他回去和老婆商量后婉拒了你。更扎心的是，他把你技术方案里三个致命漏洞列了出来——免费的，也是最后一次。", fx: { network: -6, health: -5 } },
@@ -561,7 +561,7 @@ const ACTIONS = [
   {
     id: "P105", phase: 1, tag: "资金", title: "接外包私活养团队",
     scene: "账上的钱撑不了几个月，一个甲方愿意出钱让你们做个定制项目。做，还是不做？",
-    checkAttr: "team", S: 9, F: 5, ideaOnly: null,
+    checkAttr: "team", S: 9, F: 5, ideaOnly: ["ai", "ring"],
     success: { text: "项目一个月交付，甲方爽快打款还介绍了新单。团队笑称咱们是「白天卖艺，晚上追梦」。", fx: { cash: 5, team: 2 } },
     mid:     { text: "钱到手了，但主产品停滞一个月，两个工程师私下抱怨「说好的改变世界呢」。", fx: { cash: 3, team: -3, traction: -1 } },
     fail:    { text: "甲方需求改了八轮，尾款拖着不给，团队边骂边加班。你开始理解什么叫「外包一时爽」。", fx: { cash: -1, team: -6, health: -4 } },
@@ -610,7 +610,7 @@ const ACTIONS = [
   {
     id: "P111", phase: 1, tag: "产品", title: "请大牛牵头技术重构",
     scene: "新来的技术大牛看完代码库沉默了很久，说：「能跑，但每一行都在还债。」你批了他两周时间动大手术。",
-    checkAttr: "team", S: 12, F: 7, ideaOnly: null, once: true, requires: ["P103"],
+    checkAttr: "team", S: 12, F: 7, ideaOnly: ["ai", "ring"], once: true, requires: ["P103"],
     success: { text: "重构后开发速度肉眼可见变快，新功能提测一次通过。大牛在周会上说：「现在才算有了地基。」", fx: { team: 8, traction: 3 } },
     mid:     { text: "重构做了一半业务插队，代码库变成新旧混血。至少，最疼的那块治好了。", fx: { team: 3, health: -3 } },
     fail:    { text: "重构导致服务断了三天，老用户流失一批。你学会了一个新词：「在飞行中换引擎」。", fx: { traction: -4, team: -3 } },
@@ -618,7 +618,7 @@ const ACTIONS = [
   {
     id: "P113", phase: 1, tag: "资金", title: "第一次向用户收费",
     scene: "免费用户涨得不错，但服务器不是慈善。你决定上线第一个付费方案——定价页改了十一版。",
-    checkAttr: "traction", S: 12, F: 7, ideaOnly: null, once: true,
+    checkAttr: "traction", S: 12, F: 7, ideaOnly: "ai", once: true,
     success: { text: "首周付费转化超预期，第一批用户用钱投了票。你把首笔订单截图设成了手机壁纸。", fx: { cash: 3, traction: 2 } },
     mid:     { text: "有人付钱，但不多。你盯着 2.3% 的转化率安慰自己：从 0 到 1 了。", fx: { cash: 1, traction: -1 } },
     fail:    { text: "付费墙一立，日活跌了三成，社区里全是「吃相难看」。你连夜把核心功能改回了免费。", fx: { traction: -4, network: -2 } },
@@ -735,6 +735,23 @@ const ACTIONS = [
     fail:    { text: "投放第二周赶上写字楼大面积退租潮，电梯屏对着空楼道循环播放。钱花了，人没了。", fx: { cash: -4, traction: -1 } },
   },
 
+  {
+    id: "BR108", phase: 1, tag: "团队", title: "挖快消巨头的销售老兵",
+    scene: "猎头推来一位在快消巨头做了十二年渠道的大区经理。他见过所有终端的水有多深，开价也不含糊。",
+    checkAttr: "network", S: 14, F: 8, ideaOnly: "brand",
+    success: { text: "他入职第一周就画出了你半年都没摸清的渠道地图，还顺手带来了三个经销商老朋友。", fx: { team: 12, network: 4, cash: -2 } },
+    mid:     { text: "人来了，但大公司的打法处处水土不服。他念叨最多的一句是：「我们以前预算是这个数的十倍。」", fx: { team: 4, cash: -2 } },
+    fail:    { text: "谈到最后他选择留在大厂，临走送你一句话：「小品牌，先活着，别学大厂。」这句免费的，最值钱。", fx: { network: -5, health: -4 } },
+  },
+  {
+    id: "BR109", phase: 1, tag: "资金", title: "接企业定制伴手礼订单",
+    scene: "一家互联网公司想批量定制带 logo 的熬夜水当年会伴手礼。生产要插单，钱是真金白银。",
+    checkAttr: "team", S: 9, F: 5, ideaOnly: "brand",
+    success: { text: "两万瓶定制款如期交付，钱到账当天你给全组加了鸡腿——用他们家的年会预算。", fx: { cash: 5, network: 3 } },
+    mid:     { text: "单子做完了，定制流程打乱了排产节奏。财务说赚了，供应链说亏了，你说都对。", fx: { cash: 2, team: -2 } },
+    fail:    { text: "印刷厂把对方 logo 印错了色号，两万瓶全部返工。甲方没翻脸，但明年的单子没了。", fx: { cash: -2, team: -4 } },
+  },
+
   /* ============ 阶段一 · 新月环专属 ============ */
   {
     id: "RG101", phase: 1, tag: "供应链", title: "华强北供应链淘金",
@@ -823,7 +840,7 @@ const ACTIONS = [
   {
     id: "T04", phase: 3, tag: "情怀", title: "创始人亲自写代码上线功能",
     scene: "你怀念写代码的日子。趁着深夜没人，你决定亲手实现一个惦记很久的小功能，明早直接上线给大家一个惊喜。",
-    checkAttr: "team", S: 12, F: 6, ideaOnly: null, minStage: 2,
+    checkAttr: "team", S: 12, F: 6, ideaOnly: ["ai", "ring"], minStage: 2,
     success: { text: "功能上线了，代码评审时 CTO 沉默许久：「架构上……我们周会聊聊。」团队用了两周把它重构成能维护的样子。", fx: { health: -4, team: -2 } },
     mid:     { text: "你写到凌晨四点，发现自己已经看不懂现在的代码库了。功能没上线，第二天的董事会你打了瞌睡。", fx: { health: -6 } },
     fail:    { text: "你绕过流程直接发布，线上事故持续两小时。事后复盘会上，全公司都知道了事故原因是「CEO 提交的代码」。", fx: { team: -6, health: -5, traction: -2 } },
@@ -874,7 +891,7 @@ const ACTIONS = [
   {
     id: "P204", phase: 2, tag: "战略", title: "硬刚大厂抄袭",
     scene: "大厂新版本上线，你的核心功能被「像素级致敬」。全公司都在等你表态：打，还是躲？",
-    checkAttr: "team", S: 15, F: 8, ideaOnly: null,
+    checkAttr: "team", S: 15, F: 8, ideaOnly: ["ai", "ring"],
     success: { text: "你发了一篇不卑不亢的公开信，配上功能上线时间线对比图，舆论一边倒。当季留存不降反升——用户用脚投票站了你。", fx: { network: 12, traction: 6 } },
     mid:     { text: "你选择闷头做差异化，避开正面战场。活是活下来了，但增长肉眼可见地慢了。", fx: { traction: 2, health: -6 } },
     fail:    { text: "你头铁跟大厂打补贴战，对方眼都没眨。一个季度后你先停了火——子弹打光了。", fx: { cash: -10, traction: -5, network: -4 } },
@@ -922,7 +939,7 @@ const ACTIONS = [
   {
     id: "P210", phase: 2, tag: "数据", title: "搭建数据中台",
     scene: "各业务的数据散落在十几张表里，口径打架打了半年。CTO 说：再不建数据中台，我们连自己都骗不明白了。",
-    checkAttr: "team", S: 12, F: 7, ideaOnly: null, once: true, minStage: 2,
+    checkAttr: "team", S: 12, F: 7, ideaOnly: ["ai", "ring"], once: true, minStage: 2,
     success: { text: "三个月后全公司只剩一个数据口径，周会吵架时间少了一半。你第一次能在十秒内答出「我们的留存到底是多少」。", fx: { team: 8, traction: 4, cash: -3 } },
     mid:     { text: "中台建了一半，业务方嫌接入麻烦不肯迁。你拥有了两套口径打架的系统——比原来多了一套。", fx: { cash: -5, team: 2 } },
     fail:    { text: "外聘的架构师做了个「大而全」的方案，烧钱半年落不了地。项目烂尾那天，工程师们默默把它命名为「数据烂尾楼」。", fx: { cash: -8, team: -5 } },
@@ -1080,6 +1097,23 @@ const ACTIONS = [
     fail:    { text: "音乐节当天暴雨，主办方腰斩了入场人数，你的物料在泥地里泡了三天。天灾这项，合同里谁都没写。", fx: { cash: -6, health: -4 } },
   },
 
+  {
+    id: "BR210", phase: 2, tag: "战略", title: "巨头推出同款熬夜饮料",
+    scene: "饮料巨头新品发布：成分表和你的几乎一字不差，铺货速度是你的十倍。全公司都在等你表态：打，还是躲？",
+    checkAttr: "team", S: 14, F: 8, ideaOnly: "brand",
+    success: { text: "你连夜发了张对比图：「配方可以抄，熬的夜抄不走。」这句文案被疯转，用户用下单站了队。", fx: { network: 12, traction: 6 } },
+    mid:     { text: "你选择错位竞争，避开正面货架。活是活下来了，但增速肉眼可见地慢了。", fx: { traction: 2, health: -6 } },
+    fail:    { text: "你跟巨头打起了促销战，对方眉头都没皱。一个季度后你先鸣金——渠道费烧穿了。", fx: { cash: -10, traction: -5, network: -4 } },
+  },
+  {
+    id: "BR211", phase: 2, tag: "数据", title: "搭建会员与私域体系",
+    scene: "复购全靠玄学不行了。你决定把散在各平台的用户沉到自己手里：会员体系、企业微信、私域社群一起上。",
+    checkAttr: "team", S: 11, F: 6, ideaOnly: "brand", minStage: 2, once: true,
+    success: { text: "百万会员沉淀进私域，复购率涨了四成。你终于有了不看平台脸色的流量池。", fx: { traction: 7, team: 4, cash: -3 } },
+    mid:     { text: "体系建起来了，社群里最活跃的是领券机器人。私域不是建群，是养人——你还在学。", fx: { traction: 2, cash: -4 } },
+    fail:    { text: "外包的会员系统上线就崩，「积分清零」事件冲上投诉榜。道歉券发出去的钱，比建系统还多。", fx: { cash: -6, team: -4 } },
+  },
+
   /* ============ 阶段二 · 新月环专属 ============ */
   {
     id: "RG201", phase: 2, tag: "供应链", title: "斋月季备货豪赌",
@@ -1190,7 +1224,7 @@ const ACTIONS = [
   {
     id: "P310", phase: 3, tag: "数据", title: "自建数据与算力基础设施",
     scene: "云账单一年比一年离谱，数据主权问题也被大客户反复追问。CTO 提交了一份自建 IDC 的方案，投入是九位数起步。",
-    checkAttr: "cash", S: 14, F: 8, ideaOnly: null, once: true, minStage: 3,
+    checkAttr: "cash", S: 14, F: 8, ideaOnly: ["ai", "ring"], once: true, minStage: 3,
     success: { text: "自建基础设施两年回本，成本降四成，大客户的安全审计一次通过。技术底座，成了你签单时最硬的筹码。", fx: { cash: 10, team: 6, traction: 4 } },
     mid:     { text: "机房建成了，迁移比预想的痛苦十倍，双跑期间成本不降反升。CTO 说这叫「黎明前的黑暗」，你希望他说得对。", fx: { cash: -15, team: 3 } },
     fail:    { text: "建到一半云厂商大降价，自建的成本优势瞬间蒸发。这笔沉没成本在财报里躺了三年，每次开会都有人提。", fx: { cash: -22, team: -4 } },
@@ -1314,6 +1348,23 @@ const ACTIONS = [
     success: { text: "运动队大赛夺牌，领奖台边你的瓶身特写传遍全网。「运动员都在喝」这六个字，值回了全部赞助费。", fx: { traction: 9, network: 6, cash: -8 } },
     mid:     { text: "成绩平平，曝光寥寥。赞助体育的残酷在于：你买的不是广告位，是别人的胜负。", fx: { cash: -10, traction: 2 } },
     fail:    { text: "队伍爆出更衣室矛盾提前出局，社交媒体把赞助商也拖进了口水战。你花钱买了个寂寞，还搭进去半年公关预算。", fx: { cash: -12, network: -4 } },
+  },
+
+  {
+    id: "BR306", phase: 3, tag: "供应链", title: "自建冷链物流网络",
+    scene: "经销商的冷链时好时坏，低温款的损耗率居高不下。CFO 摊开测算表：自建冷链，投入九位数起步。",
+    checkAttr: "cash", S: 14, F: 9, ideaOnly: "brand", minStage: 3, once: true,
+    success: { text: "两年建成区域冷链网，损耗率砍半，还开始给同行做代运输——成本中心干成了利润中心。", fx: { cash: 10, traction: 5, team: 5 } },
+    mid:     { text: "网络建到一半，油价和人力翻着涨。你咬牙继续——重资产的路，回头比走完更贵。", fx: { cash: -15, team: 3 } },
+    fail:    { text: "冷链建成当年，行业整体转向常温款。巨额投入压在账上，董事会上没人说话。", fx: { cash: -22, team: -5 } },
+  },
+  {
+    id: "T11", phase: 3, tag: "情怀", title: "创始人亲自操刀新配方",
+    scene: "你怀念当年在出租屋调配方的日子。趁研发总监休假，你决定亲自操刀一款「创始人特调版」，直接排产上线。",
+    checkAttr: null, S: 12, F: 7, ideaOnly: "brand", minStage: 2, once: true,
+    success: { text: "新品上市，情怀拉满，复购惨淡。研发总监回来喝了一口，沉默地把它归进了「纪念款」。", fx: { health: -4, cash: -3 } },
+    mid:     { text: "你在实验室泡了两周，调出的味道和现有产品线打架。项目搁置，你的手艺留在了周年庆礼盒里。", fx: { cash: -5, health: -5 } },
+    fail:    { text: "跳过流程的批次出了口味投诉，紧急下架。研发部集体沉默的样子，比投诉本身更扎心。", fx: { cash: -6, traction: -3, team: -4 } },
   },
 
   /* ============ 阶段三 · 新月环专属 ============ */
@@ -1833,12 +1884,18 @@ function checkFunding() {
   return closed;
 }
 
+// 点子匹配：ideaOnly 可为 null（通用）、字符串（单线）或数组（多线）
+function fitsIdea(entry) {
+  if (!entry.ideaOnly) return true;
+  return Array.isArray(entry.ideaOnly) ? entry.ideaOnly.includes(state.idea.id) : entry.ideaOnly === state.idea.id;
+}
+
 // 抽取选项：阶段 + 点子 + 轮次门槛 + once/前置解锁，排除上一节点展示过的
 function drawChoices() {
   const phase = phaseOfNode(state.node);
   const pool = ACTIONS.filter(a =>
     a.phase === phase &&
-    (!a.ideaOnly || a.ideaOnly === state.idea.id) &&
+    fitsIdea(a) &&
     (a.minStage === undefined || state.stage >= a.minStage) &&
     (a.maxStage === undefined || state.stage <= a.maxStage) &&
     (!a.once || !state.taken.has(a.id)) &&
@@ -1896,7 +1953,7 @@ function maybeDrawWildcard() {
   const available = WILDCARDS.filter(w =>
     !state.usedWildcards.has(w.id) &&
     (!w.phase || w.phase.includes(phase)) &&
-    (!w.ideaOnly || w.ideaOnly === state.idea.id)
+    fitsIdea(w)
   );
   if (available.length === 0) return null;
   const card = available[Math.floor(Math.random() * available.length)];
