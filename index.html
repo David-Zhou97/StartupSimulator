@@ -282,7 +282,7 @@ body::after {
 .char-flavor-text { animation: riseIn 0.45s steps(6) both; animation-delay: 0.12s; }
 
 /* ---------- 角色选择 ---------- */
-.char-card { position: relative; overflow: hidden; }
+.char-card { position: relative; overflow: hidden; z-index: 100; }
 .char-card::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
 }
@@ -332,7 +332,7 @@ body::after {
   vertical-align: -8px;
 }
 .char-head.sm { width: 20px; height: 20px; vertical-align: -6px; }
-.char-flavor-card { display: flex; gap: 16px; align-items: flex-start; }
+.char-flavor-card { display: flex; gap: 16px; align-items: flex-start; position: relative; z-index: 100; }
 .char-flavor-art { flex: 0 0 96px; position: relative; z-index: 100; }
 .char-flavor-art img { width: 96px; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45)); }
 .char-flavor-text { flex: 1; min-width: 0; }
