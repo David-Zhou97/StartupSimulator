@@ -176,11 +176,9 @@ body::after {
   text-align: left;
   cursor: pointer;
 }
-.btn:hover { background: var(--bg-card-hover); border-color: var(--accent); }
 .btn:active { transform: translate(4px, 4px); box-shadow: none; }
 .btn .btn-title { font-weight: 700; }
 .btn .btn-title::before { content: "▷ "; color: var(--text-dim); }
-.btn:hover .btn-title::before { content: "▶ "; color: var(--accent); }
 .btn .btn-sub { color: var(--text-dim); font-size: 0.84rem; margin-top: 3px; }
 .tag-chip {
   display: inline-block;
@@ -192,13 +190,11 @@ body::after {
 }
 .btn-ipo { border-color: var(--gold); }
 .btn-ipo .btn-title::before { content: "◆ "; color: var(--gold); }
-.btn-ipo:hover .btn-title::before { content: "◆ "; color: var(--gold); }
 .btn-primary {
   background: var(--gold); color: #1a1400; text-align: center; font-weight: 700;
   border-color: var(--gold);
   letter-spacing: 4px;
 }
-.btn-primary:hover { background: #f8d078; border-color: #f8d078; color: #1a1400; }
 
 /* ---------- 弹层（百搭卡 / 融资） ---------- */
 #overlay {
@@ -295,7 +291,6 @@ body::after {
   transition: transform 0.12s steps(3);
 }
 .idea-visual .idea-emoji { font-size: 52px; line-height: 96px; }
-.btn:hover .idea-visual img { transform: scale(1.05); }
 .hud-logo { width: 28px; height: 28px; vertical-align: -7px; margin-right: 6px; }
 .attr-icon { width: 20px; height: 20px; vertical-align: -4px; }
 /* 结算印章：结果面板角落盖章，成/平/败 叠字 */
@@ -404,6 +399,15 @@ body::after {
 .wildcard.framed h2::before { content: ""; }
 .wildcard.framed .scene { color: #40372a; font-size: 0.88rem; }
 .wildcard.framed .dim { color: #6f6552; }
+
+/* 悬停态只在鼠标设备生效，避免触屏上点击后的粘滞高亮 */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: var(--bg-card-hover); border-color: var(--accent); }
+  .btn:hover .btn-title::before { content: "▶ "; color: var(--accent); }
+  .btn-primary:hover { background: #f8d078; border-color: #f8d078; color: #1a1400; }
+  .btn-ipo:hover .btn-title::before { content: "◆ "; color: var(--gold); }
+  .btn:hover .idea-visual img { transform: scale(1.05); }
+}
 
 /* ---------- debug ---------- */
 #debug-panel {
@@ -1607,7 +1611,7 @@ const ENDINGS = {
     },
     {
       id: "ipo",
-      cond: (s, ctx) => ctx.prepYear >= 7 && ctx.prepYear <= 9 && ctx.stage >= 4 && s.cash >= 150 && s.traction >= 80,
+      cond: (s, ctx) => ctx.prepYear >= 7 && ctx.prepYear <= 9 && ctx.stage >= 4 && s.traction >= 80 && s.cash >= 80,
       title: "敲钟上市 ——「鸣锣这一刻」",
       badge: "",
       text: "交易所的钟声响起时，你看向台下：有陪你熬过办公室地板的联创，有拒绝过你七次的投资人，有当年发着 38 度烧还在改代码的工程师。\n股价的曲线开始跳动，市值折算下来，早期员工的期权够在这座城市买房了。\n敲完钟你躲进洗手间哭了三分钟，出来时笑容标准，像过去十年的每一天。",
@@ -1615,7 +1619,7 @@ const ENDINGS = {
     },
     {
       id: "hidden_champion",
-      cond: (s) => s.traction >= 60 && s.cash >= 80,
+      cond: (s) => s.traction >= 65 && s.cash >= 40,
       title: "隐形冠军 ——「闷声发大财」",
       badge: "",
       text: "你的名字很少出现在热搜上，你的公司却出现在行业里每一条供应链的深处。\n市占率第一、连续五年盈利、零负债。同行想抄你，发现你的壁垒不在明处，在十年积累的每一个细节里。\n有基金想投你，你笑着回：「我们不缺钱，缺的您也给不了——时间。」",
@@ -1623,7 +1627,7 @@ const ENDINGS = {
     },
     {
       id: "acquired",
-      cond: (s) => s.traction >= 40 && s.network >= 55,
+      cond: (s) => s.traction >= 50 && s.network >= 50,
       title: "体面卖身 ——「一个好价钱」",
       badge: "",
       text: "谈判持续了四个月，最终大厂的收购要约摆在桌上：不算暴富，但足够体面。\n签字那天，对方的 VP 说：「你们团队我们全要，品牌保留。」这是你争取到的最重要的条款。\n交割完成，你在全员信里写：「我们没能改变世界，但我们把自己活成了一个不错的价格。」",
@@ -1631,7 +1635,7 @@ const ENDINGS = {
     },
     {
       id: "small_beautiful",
-      cond: (s) => s.traction >= 20 && s.health >= 35 && s.cash >= 8,
+      cond: (s) => s.traction >= 30 && s.health >= 35,
       title: "小而美 ——「一间自己的公司」",
       badge: "",
       text: "十几个人，几百万利润，一个稳定的客户群。你的公司成不了独角兽，但每年团建可以去海边。\n你不再看融资新闻，不再对标竞品，员工的孩子你都叫得出名字。\n偶尔有前同事问你「就这样了吗」，你想起十年前那个焦虑到失眠的自己，回了三个字：「挺好的。」",
@@ -1639,7 +1643,7 @@ const ENDINGS = {
     },
     {
       id: "zombie",
-      cond: (s) => s.traction >= 15 || s.cash >= 25,
+      cond: (s) => s.traction >= 15,
       title: "僵尸企业 ——「活着，但只是活着」",
       badge: "",
       text: "公司还在，业务还有，工资照发。只是所有人都知道，这家公司不会再长大了——包括你。\n你的日程表排得很满，但没有一件事让你心跳加速。体检报告越来越厚，梦想越来越薄。\n有人劝你关掉算了，你摇摇头。不是舍不得公司，是不知道除了这个，自己还会干什么。",
@@ -1758,7 +1762,8 @@ function fundScore() {
 function cashflow() {
   const phase = phaseOfNode(state.node);
   const tr = state.stats.traction;
-  const stageMult = 1 + state.stage * 0.4;
+  // C 轮（第 4 轮）后烧钱显著加码：规模的代价
+  const stageMult = 1 + state.stage * 0.4 + Math.max(0, state.stage - 3) * 0.5;
   let burn, rev;
   if (phase === 1) { burn = Math.ceil(1 * stageMult); rev = Math.floor(tr / 8); }
   else if (phase === 2) { burn = Math.ceil(2.5 * stageMult); rev = Math.floor(tr * tr / 250); }
@@ -1860,6 +1865,11 @@ function resolveAction(action) {
   if (tier === "crit_success") {
     const heal = applyFx({ health: 4 });
     if (heal.health) applied.health = (applied.health || 0) + heal.health;
+    // C 轮后的时来运转：数据收益额外翻倍（规模效应）
+    if (state.stage >= 4 && (outcome.fx.traction || 0) > 0) {
+      const extra = applyFx({ traction: outcome.fx.traction });
+      if (extra.traction) applied.traction = (applied.traction || 0) + extra.traction;
+    }
   }
   state.taken.add(action.id);
   state.log.push({ node: state.node, time: timeLabel(state.node), title: action.title, tier });
@@ -2176,7 +2186,7 @@ function maybeAcquisitionOffer(cont) {
       <h2>${esc(title)}</h2>
       <p class="scene">${esc(scene)}</p>
       <div style="margin-top:14px">
-        <button class="btn" data-i="0"><div class="btn-title"><span class="key-hint">[1]</span>接受要约（本局结束）</div></button>
+        <button class="btn" data-i="0"><div class="btn-title"><span class="key-hint">[1]</span>接受要约</div></button>
         <button class="btn" data-i="1"><div class="btn-title"><span class="key-hint">[2]</span>拒绝，继续独立发展</div></button>
       </div>
     </div>
